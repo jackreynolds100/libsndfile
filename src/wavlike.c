@@ -36,6 +36,11 @@
 #define WAV_CART_MIN_CHUNK_SIZE		2048
 #define WAV_CART_MAX_CHUNK_SIZE		0xffffffff
 
+#define WAV_AXML_MIN_CHUNK_SIZE     0
+#define WAV_AXML_MAX_CHUNK_SIZE     0xffffffff
+
+#define WAV_CHNA_MIN_CHUNK_SIZE     0
+#define WAV_CHNA_MAX_CHUNK_SIZE     0xffffffff
 
 static int 	exif_subchunk_parse	(SF_PRIVATE *psf, uint32_t length) ;
 
@@ -1296,3 +1301,142 @@ wavlike_write_custom_chunks (SF_PRIVATE * psf)
 							BHWv (psf->wchunks.chunks [k].data), BHWz (psf->wchunks.chunks [k].len)) ;
 
 } /* wavlike_write_custom_chunks */
+
+nt
+wavlike_read_chna_chunk (SF_PRIVATE *psf, uint32_t chunksize)
+{
+    SF_CHNA_INFO_16K *b ;
+    uint32_t bytes = 0 ;
+    uint32_t i;
+    
+    printf("wavlike_read_chna_chunk: chunksize=%d, %d\n", chunksize, sizeof(SF_CHNA_INFO));
+    
+    printf("wavlike_read_chna_chunk: bytes: %x %x %x - ", (int)psf->header.indx, (int)psf->header.end, (int)psf->header.ptr);
+    for (i = 0; i < 44; i++)
+    {
+        printf("%02x ", psf->header.ptr[i]);
+    }
+    printf("\n");
+    
+    if (chunksize >= sizeof (SF_CHNA_INFO))
+    {    psf_log_printf (psf, "chna : %u too big to be handled\n", chunksize) ;
+        psf_binheader_readf (psf, "j", chunksize) ;
+        return 0 ;
+    } ;
+    
+    psf_log_printf (psf, "chna : %u\n", chunksize) ;
+    
+    if ((psf->chna_16k = chna_var_alloc ()) == NULL)
+    {    psf->error = SFE_MALLOC_FAILED ;
+        return psf->error ;
+    } ;
+    
+    b = psf->chna_16k ;
+    
+    printf("wavlike_read_chna_chunk: sizeof(b->ckSize)=%d\n", sizeof (b->ckSize));
+    
+    bytes += psf_binheader_readf (psf, "b", b->ckSize, sizeof (b->ckSize)) ;
+    bytes += psf_binheader_readf (psf, "b", b->numTracks, sizeof (b->numTracks)) ;
+    bytes += psf_binheader_readf (psf, "b", b->numUIDs, sizeof (b->numUIDs)) ;
+    bytes += psf_binheader_readf (psf, "b", b->audioID, sizeof (b->audioID)) ;
+    for (i = 0; i < b->numUIDs; i++)
+    {
+        SF_CHNA_TRACK *chna_track;
+        chna_track = &(b->audioID[i]);
+        bytes += psf_binheader_readf (psf, "b", chna_track->trackIndex, sizeof (chna_track->trackIndex)) ;
+        bytes += psf_binheader_readf (psf, "b", chna_track->UID, sizeof (chna_track->UID)) ;
+        bytes += psf_binheader_readf (psf, "b", chna_track->trackRef, sizeof (chna_track->trackRef)) ;
+        bytes += psf_binheader_readf (psf, "b", chna_track->packRef, sizeof (chna_track->packRef)) ;
+        bytes += psf_binheader_readf (psf, "b", chna_track->pad, sizeof (chna_track->pad)) ;
+    }
+    return 0 ;
+} /* wavlike_read_chna_chunk */
+
+
+int
+wavlike_write_chna_chunk (SF_PRIVATE *psf)
+{    SF_CHNA_INFO_16K *b ;
+    uint32_t bytes = 0 ;
+    uint32_t i;
+    
+    if (psf->chna_16k == NULL)
+        return -1 ;
+    
+    b = psf->chna_16k ;
+    
+    bytes += psf_binheader_readf (psf, "b", b->ckSize, sizeof (b->ckSize)) ;
+    bytes += psf_binheader_readf (psf, "b", b->numTracks, sizeof (b->numTracks)) ;
+    bytes += psf_binheader_readf (psf, "b", b->numUIDs, sizeof (b->numUIDs)) ;
+    bytes += psf_binheader_readf (psf, "b", b->audioID, sizeof (b->audioID)) ;
+    for (i = 0; i < b->numUIDs; i++)
+    {
+        SF_CHNA_TRACK *chna_track;
+        chna_track = &(b->audioID[i]);
+        bytes += psf_binheader_readf (psf, "b", chna_track->trackIndex, sizeof (chna_track->trackIndex)) ;
+        bytes += psf_binheader_readf (psf, "b", chna_track->UID, sizeof (chna_track->UID)) ;
+        bytes += psf_binheader_readf (psf, "b", chna_track->trackRef, sizeof (chna_track->trackRef)) ;
+        bytes += psf_binheader_readf (psf, "b", chna_track->packRef, sizeof (chna_track->packRef)) ;
+        bytes += psf_binheader_readf (psf, "b", chna_track->pad, sizeof (chna_track->pad)) ;
+    }
+    return 0 ;
+} /* wavlike_write_chna_chunk */
+
+
+int
+wavlike_read_axml_chunk (SF_PRIVATE *psf, uint32_t chunksize)
+{
+    SF_AXML_INFO_16K *b ;
+    uint32_t bytes = 0 ;
+    
+    
+    printf("wavlike_read_axml_chunk: called\n");
+    
+    if (chunksize >= sizeof (SF_AXML_INFO))
+    {    psf_log_printf (psf, "chna : %u too big to be handled\n", chunksize) ;
+        psf_binheader_readf (psf, "j", chunksize) ;
+        return 0 ;
+    } ;
+    
+    psf_log_printf (psf, "axml : %u\n", chunksize) ;
+    
+    if ((psf->axml_16k = axml_var_alloc ()) == NULL)
+    {    psf->error = SFE_MALLOC_FAILED ;
+        return psf->error ;
+    } ;
+    
+    {
+        
+        b = psf->axml_16k ;
+        
+        bytes += psf_binheader_readf (psf, "b", b->ckID, sizeof (b->ckID)) ;
+        bytes += psf_binheader_readf (psf, "b", b->ckSize, sizeof (b->ckSize)) ;
+        bytes += psf_binheader_readf (psf, "b", b->xmlData, sizeof (b->xmlData)) ;
+        
+        
+    }
+    return 0 ;
+} /* wavlike_read_axml_chunk */
+
+int
+wavlike_write_axml_chunk (SF_PRIVATE *psf)
+{
+    SF_AXML_INFO_16K *b ;
+    uint32_t bytes = 0 ;
+    
+    if ((psf->axml_16k = axml_var_alloc ()) == NULL)
+    {    psf->error = SFE_MALLOC_FAILED ;
+        return psf->error ;
+    }
+    {
+        b = psf->axml_16k ;
+        
+        bytes += psf_binheader_readf (psf, "b", b->ckID, sizeof (b->ckID)) ;
+        bytes += psf_binheader_readf (psf, "b", b->ckSize, sizeof (b->ckSize)) ;
+        bytes += psf_binheader_readf (psf, "b", b->xmlData, sizeof (b->xmlData)) ;
+    }
+    return 0 ;
+}
+
+
+
+/* wavlike_write_axml_chunk */
