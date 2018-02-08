@@ -190,6 +190,21 @@ bw64_open (SF_PRIVATE *psf)
         }
     }
 
+    // This is just printing out chna contents for debugging
+    /*{
+        SF_AXML_INFO_16K *b ;
+        int i;
+
+        b = psf->axml_16k;
+
+        printf("axml: ckSize=%d\n", b->ckSize);
+        for (i = 0; i < (int)b->ckSize - 8; i++)
+        {
+            printf("%c", b->xmlData[i]);
+        }
+        printf("\n");
+    }*/
+
     return error ;
 } /* BW64_open */
 

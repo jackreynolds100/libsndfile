@@ -532,7 +532,7 @@ typedef SF_CHNA_INFO_VAR (256) SF_CHNA_INFO ;
 #define SF_AXML_INFO_VAR(xmlData_size) \
 	struct \
  			{ char   	ckID	[4] ; \
-			  char 		ckSize [4] ; \
+			  uint32_t ckSize ; \
 				char 		xmlData	[xmlData_size] ; \
 			}
 

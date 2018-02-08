@@ -1352,7 +1352,6 @@ wavlike_write_chna_chunk (SF_PRIVATE *psf)
 
     b = psf->chna_fixed ;
 
-		psf_binheader_writef (psf, "b", BHWv (&(b->ckSize)), BHWz (sizeof (b->ckSize))) ;
 		psf_binheader_writef (psf, "b", BHWv (&(b->numTracks)), BHWz (sizeof (b->numTracks))) ;
 		psf_binheader_writef (psf, "b", BHWv (&(b->numUIDs)), BHWz (sizeof (b->numUIDs))) ;
 		psf_binheader_writef (psf, "b", BHWv (&(b->audioID)), BHWz (sizeof (b->audioID))) ;
@@ -1378,7 +1377,7 @@ wavlike_read_axml_chunk (SF_PRIVATE *psf, uint32_t chunksize)
     uint32_t bytes = 0 ;
 
 
-    printf("wavlike_read_axml_chunk: called\n");
+    printf("wavlike_read_axml_chunk: chunksize=%u\n", chunksize);
 
     if (chunksize >= sizeof (SF_AXML_INFO))
     {    psf_log_printf (psf, "chna : %u too big to be handled\n", chunksize) ;
@@ -1393,13 +1392,11 @@ wavlike_read_axml_chunk (SF_PRIVATE *psf, uint32_t chunksize)
         return psf->error ;
     } ;
 
-    {
-        b = psf->axml_16k ;
 
-        bytes += psf_binheader_readf (psf, "b", b->ckID, sizeof (b->ckID)) ;
-        bytes += psf_binheader_readf (psf, "b", b->ckSize, sizeof (b->ckSize)) ;
-        bytes += psf_binheader_readf (psf, "b", b->xmlData, sizeof (b->xmlData)) ;
-    }
+		b->ckSize = chunksize;
+    b = psf->axml_16k ;
+    bytes += psf_binheader_readf (psf, "b", b->xmlData, chunksize - 8) ;
+
     return 0 ;
 } /* wavlike_read_axml_chunk */
 
