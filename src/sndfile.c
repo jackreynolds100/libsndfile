@@ -266,7 +266,7 @@ ErrorStruct SndfileErrors [] =
     {   SFE_BW64_NOT_BW64       , "Error : Not a BW64 file." },
     {   SFE_BW64_PEAK_B4_FMT    , "Error in RF64 file. 'PEAK' chunk found before 'fmt ' chunk." },
     {   SFE_BW64_NO_DATA        , "Error in RF64 file. No 'data' chunk marker." },
-    
+
     {	SFE_ALAC_FAIL_TMPFILE	, "Error : Failed to open tmp file for ALAC encoding." },
 
 	{	SFE_BAD_CHUNK_PTR		, "Error : Bad SF_CHUNK_INFO pointer." },
@@ -860,7 +860,7 @@ sf_format_check	(const SF_INFO *info)
 				if (subformat == SF_FORMAT_FLOAT || subformat == SF_FORMAT_DOUBLE)
 					return 1 ;
 				break ;
-            
+
         case SF_FORMAT_BW64 :
             if (endian == SF_ENDIAN_BIG || endian == SF_ENDIAN_CPU)
                 return 0 ;
@@ -873,7 +873,7 @@ sf_format_check	(const SF_INFO *info)
             if (subformat == SF_FORMAT_FLOAT || subformat == SF_FORMAT_DOUBLE)
                 return 1 ;
             break ;
-            
+
 		default : break ;
 		} ;
 
@@ -1233,69 +1233,69 @@ sf_command	(SNDFILE *sndfile, int command, void *data, int datasize)
             /* Only WAV and BW64 support the axml chunk. */
         case SFC_SET_AXML_INFO :
         {    int format = SF_CONTAINER (psf->sf.format) ;
-            
+
             if (format != SF_FORMAT_WAV && format != SF_FORMAT_BW64)
                 return SF_FALSE ;
         };
-            
+
             if ((psf->file.mode != SFM_WRITE) && (psf->file.mode != SFM_RDWR))
                 return SF_FALSE ;
-            
+
             if (psf->axml_16k == NULL && psf->have_written)
             {    psf->error = SFE_CMD_HAS_DATA ;
                 return SF_FALSE ;
             } ;
-            
+
             if (NOT (axml_var_set (psf, data, datasize)))
                 return SF_FALSE ;
-            
+
             if (psf->write_header)
                 psf->write_header (psf, SF_TRUE) ;
             return SF_TRUE ;
-            
-            
+
+
         case SFC_GET_AXML_INFO :
             if (data == NULL)
             {    psf->error = SFE_BAD_COMMAND_PARAM ;
                 return SF_FALSE ;
             } ;
             return axml_var_get (psf, data, datasize) ;
-            
-            
+
+
             /* Only WAV and BW64 support the CHNA (channel allocation) chunk. */
         case SFC_SET_CHNA_INFO :
         {    int format = SF_CONTAINER (psf->sf.format) ;
-            
+
             if (format != SF_FORMAT_WAV && format != SF_FORMAT_BW64)
                 return SF_FALSE ;
         } ;
-            
+
             if ((psf->file.mode != SFM_WRITE) && (psf->file.mode != SFM_RDWR))
                 return SF_FALSE ;
-            
-            if (psf->chna_16k == NULL && psf->have_written)
+
+            if (psf->chna_fixed == NULL && psf->have_written)
             {    psf->error = SFE_CMD_HAS_DATA ;
                 return SF_FALSE ;
             } ;
-            
+
             if (NOT (chna_var_set (psf, data, datasize)))
                 return SF_FALSE ;
-            
+
             if (psf->write_header)
                 psf->write_header (psf, SF_TRUE) ;
             return SF_TRUE ;
-            
-            
+
+
         case SFC_GET_CHNA_INFO :
             if (data == NULL)
             {    psf->error = SFE_BAD_COMMAND_PARAM ;
                 return SF_FALSE ;
             } ;
             return chna_var_get (psf, data, datasize) ;
-            
-            
-            
-            
+
+
+
+
 		case SFC_SET_CART_INFO :
 			{	int format = SF_CONTAINER (psf->sf.format) ;
 				/* Only WAV and RF64 support cart chunk format */
@@ -2820,7 +2820,7 @@ guess_file_type (SF_PRIVATE *psf)
 
     if (buffer [0] == MAKE_MARKER ('B', 'W', '6', '4') && buffer [2] == MAKE_MARKER ('W', 'A', 'V', 'E'))
         return SF_FORMAT_BW64 ;
-    
+
     if (buffer [0] == MAKE_MARKER ('I', 'D', '3', 3))
 	{	psf_log_printf (psf, "Found 'ID3' marker.\n") ;
 		if (id3_skip (psf))
@@ -2944,9 +2944,9 @@ psf_close (SF_PRIVATE *psf)
 	free (psf->dither) ;
 	free (psf->peak_info) ;
 	free (psf->broadcast_16k) ;
-    free (psf->chna_16k) ;
-    free (psf->axml_16k) ;
-    free (psf->loop_info) ;
+  free (psf->chna_fixed) ;
+  free (psf->axml_16k) ;
+  free (psf->loop_info) ;
 	free (psf->instrument) ;
 	free (psf->cues) ;
 	free (psf->channel_map) ;
@@ -3123,7 +3123,8 @@ psf_open_file (SF_PRIVATE *psf, SF_INFO *sfinfo)
 	switch (SF_CONTAINER (psf->sf.format))
 	{	case	SF_FORMAT_WAV :
 		case	SF_FORMAT_WAVEX :
-				error = wav_open (psf) ;
+		    error = bw64_open (psf) ;   // TEMPORARY CHANGE - as BW64 isn't being picked up always.
+				//error = wav_open (psf) ;
 				break ;
 
 		case	SF_FORMAT_AIFF :
@@ -3145,11 +3146,11 @@ psf_open_file (SF_PRIVATE *psf, SF_INFO *sfinfo)
 		case	SF_FORMAT_RF64 :
 				error = rf64_open (psf) ;
 				break ;
-            
-        case    SF_FORMAT_BW64 :
-                error = bw64_open (psf) ;
-                break ;
-            
+
+    case  SF_FORMAT_BW64 :
+        error = bw64_open (psf) ;
+        break ;
+
 		/* Lite remove start */
 		case	SF_FORMAT_PAF :
 				error = paf_open (psf) ;

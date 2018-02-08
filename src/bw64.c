@@ -159,8 +159,36 @@ bw64_open (SF_PRIVATE *psf)
 
             /* Lite remove end */
 
-        default :     return SFE_UNIMPLEMENTED ;
+        default :
+            return SFE_UNIMPLEMENTED ;
     } ;
+
+    // This is just printing out chna contents for debugging
+    {
+        SF_CHNA_INFO_FIXED *b ;
+        int i, j;
+
+        b = psf->chna_fixed ;
+
+        printf("chna: ckSize=%d\n", b->ckSize);
+        printf("chna: numTracks=%d\n", b->numTracks);
+        printf("chna: numUIDs=%d\n", b->numUIDs);
+        for (i = 0; i < b->numUIDs; i++)
+        {
+            SF_CHNA_TRACK *chna_track;
+            chna_track = &(b->audioID[i]);
+            printf("chna: [%d] trackIndex=%d\n", i, chna_track->trackIndex);
+            printf("chna: [%d] UID=", i);
+            for (j = 0; j < 12; j++) printf("%c", chna_track->UID[j]);
+            printf("\n");
+            printf("chna: [%d] trackRef=", i);
+            for (j = 0; j < 14; j++) printf("%c", chna_track->trackRef[j]);
+            printf("\n");
+            printf("chna: [%d] packRef=", i);
+            for (j = 0; j < 11; j++) printf("%c", chna_track->packRef[j]);
+            printf("\n");
+        }
+    }
 
     return error ;
 } /* BW64_open */
@@ -193,7 +221,7 @@ BW64_read_header (SF_PRIVATE *psf, int *blockalign, int *framesperblock)
 
     /* Set position to start of file to begin reading header. */
     psf_binheader_readf (psf, "pmmm", 0, &marker, marks, marks + 1) ;
-    printf("BW64_read_header: %x %x %x %x\n", marker, BW64_MARKER, marks[1], WAVE_MARKER);
+    //printf("BW64_read_header: %x %x %x %x\n", marker, BW64_MARKER, marks[1], WAVE_MARKER);
     if (/*marker != BW64_MARKER || */marks [1] != WAVE_MARKER)   // Ignoring RIFF == bw64 comparison for now..
         return SFE_BW64_NOT_BW64 ;
 
@@ -202,18 +230,11 @@ BW64_read_header (SF_PRIVATE *psf, int *blockalign, int *framesperblock)
     else
         psf_log_printf (psf, "%M : 0x%x (should be 0xFFFFFFFF)\n  %M\n", BW64_MARKER, WAVE_MARKER) ;
 
+
     while (NOT (done))
     {
-        printf("BW64_read_header: indx=%lu\n", (uint64_t)psf->header.indx);
-
         marker = chunk_size = 0 ;
         psf_binheader_readf (psf, "em4", &marker, &chunk_size) ;
-
-        printf("BW64_read_header: marker=%c%c%c%c end=%lu\n", (char)(marker & 0xff),
-                                                      (char)((marker >> 8) & 0xff),
-                                                      (char)((marker >> 16) & 0xff),
-                                                      (char)((marker >> 24) & 0xff),
-                                                      (uint64_t)psf->header.end);
 
         if (marker == 0)
         {    sf_count_t pos = psf_ftell (psf) ;
@@ -318,8 +339,6 @@ BW64_read_header (SF_PRIVATE *psf, int *blockalign, int *framesperblock)
 
             case data_MARKER :
                 /* see wav for more sophisticated parsing -> implement state machine with parsestage */
-
-                printf("BW64_read_header: data_MARKER: chunk_size=%lu\n", (uint32_t)chunk_size);
                 if (HAVE_CHUNK (HAVE_ds64))
                 {    if (chunk_size == 0xffffffff)
                     psf_log_printf (psf, "%M : 0x%x\n", marker, chunk_size) ;
@@ -340,7 +359,6 @@ BW64_read_header (SF_PRIVATE *psf, int *blockalign, int *framesperblock)
 
                 psf->dataoffset = psf_ftell (psf) ;
 
-                printf("BW64_read_header: data_MARKER: dataoffset=%u, datalength=%u\n", psf->dataoffset, psf->datalength);
 
                 if (psf->dataoffset > 0)
                 {    if (chunk_size == 0 && riff_size == 8 && psf->filelength > 44)
@@ -361,23 +379,18 @@ BW64_read_header (SF_PRIVATE *psf, int *blockalign, int *framesperblock)
                     if (psf_ftell (psf) != psf->datalength + psf->dataoffset)
                         psf_log_printf (psf, "  *** psf_fseek past end error ***\n") ;
                 } ;
-
-                psf->header.indx += chunk_size;
-                psf->header.end = psf->header.indx;
-
-                printf("BW64_read_header: data_MARKER: post seek: dataoffset=%u, datalength=%u, indx=%u\n", psf->dataoffset, psf->datalength, psf->header.indx);
-
                 break ;
 
             case JUNK_MARKER : // <junk> chunk is a placeholder for the <ds64> chunk that is used if a 32bit audio file is being generated that may need converting on the fly into a 64bit sized file later.
+                psf_binheader_readf (psf, "j", chunk_size) ;
+                break;
+
             case PAD_MARKER :
                 psf_log_printf (psf, "%M : %d\n", marker, chunk_size) ;
                 psf_binheader_readf (psf, "j", chunk_size) ;
                 break ;
 
             default :
-                printf("BW64_read_header: default: chunk_size=%u\n", (uint32_t)chunk_size);
-
                 if (chunk_size >= 0xffff0000)
                 {    psf_log_printf (psf, "*** Unknown chunk marker (%X) at position %D with length %u. Exiting parser.\n", marker, psf_ftell (psf) - 8, chunk_size) ;
                     done = SF_TRUE ;

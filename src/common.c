@@ -858,6 +858,7 @@ header_read (SF_PRIVATE *psf, void *ptr, int bytes)
 		psf->header.end += count ;
 		} ;
 
+
 	memcpy (ptr, psf->header.ptr + psf->header.indx, bytes) ;
 	psf->header.indx += bytes ;
 
@@ -962,6 +963,7 @@ psf_binheader_readf (SF_PRIVATE *psf, char const *format, ...)
 		return psf_ftell (psf) ;
 
 	va_start (argptr, format) ;
+
 
 	while ((c = *format++))
 	{

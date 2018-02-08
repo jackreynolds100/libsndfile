@@ -299,7 +299,7 @@ make_size_t (int x)
 
 typedef SF_BROADCAST_INFO_VAR (16 * 1024) SF_BROADCAST_INFO_16K ;
 
-typedef SF_CHNA_INFO_VAR (16 * 1024) SF_CHNA_INFO_16K ;
+typedef SF_CHNA_INFO_VAR (1024) SF_CHNA_INFO_FIXED ;
 
 typedef SF_AXML_INFO_VAR (16 * 1024) SF_AXML_INFO_16K ;
 
@@ -470,10 +470,10 @@ typedef struct sf_private_tag
 	/* Cart (AES46) Info */
 	SF_CART_INFO_16K *cart_16k ;
 
-    /* ADM BW64 DATA */
-    SF_CHNA_INFO_16K *chna_16k ;
-    SF_AXML_INFO_16K *axml_16k ;
-    
+  /* ADM BW64 DATA */
+  SF_CHNA_INFO_FIXED *chna_fixed ;
+  SF_AXML_INFO_16K *axml_16k ;
+
     /* Channel map data (if present) : an array of ints. */
 	int				*channel_map ;
 
@@ -624,7 +624,7 @@ enum
     SFE_BAD_AXML_INFO_TOO_BIG,
     SFE_BAD_CHNA_INFO_SIZE,
     SFE_BAD_CHNA_INFO_TOO_BIG,
-    
+
     SFE_STR_NO_SUPPORT,
 	SFE_STR_NOT_WRITE,
 	SFE_STR_MAX_DATA,
@@ -764,7 +764,7 @@ enum
     SFE_BW64_NOT_BW64,
     SFE_BW64_PEAK_B4_FMT,
     SFE_BW64_NO_DATA,
-    
+
     SFE_BAD_CHUNK_PTR,
 	SFE_UNKNOWN_CHUNK,
 	SFE_BAD_CHUNK_FORMAT,
@@ -1037,7 +1037,7 @@ SF_CART_INFO_16K * cart_var_alloc (void) ;
 int 		cart_var_set (SF_PRIVATE *psf, const SF_CART_INFO * date, size_t datasize) ;
 int		cart_var_get (SF_PRIVATE *psf, SF_CART_INFO * data, size_t datasize) ;
 
-SF_CHNA_INFO_16K * chna_var_alloc (void) ;
+SF_CHNA_INFO_FIXED * chna_var_alloc (void) ;
 int   chna_var_set (SF_PRIVATE *psf, const SF_CHNA_INFO * data, size_t datasize) ;
 int   chna_var_get (SF_PRIVATE *psf, SF_CHNA_INFO * data, size_t datasize) ;
 

@@ -27,10 +27,10 @@
 
 /* i'm not sure if chna.c is neceesary for BW64*/
 
-SF_CHNA_INFO_16K*
+SF_CHNA_INFO_FIXED*
 chna_var_alloc (void)
 {
-	return calloc (1, sizeof (SF_CHNA_INFO_16K)) ;
+	return calloc (1, sizeof (SF_CHNA_INFO_FIXED)) ;
 } /* chna_var_alloc */
 
 int
@@ -40,13 +40,13 @@ chna_var_set (SF_PRIVATE *psf, const SF_CHNA_INFO * info, size_t datasize)
 	if (info == NULL)
 		return SF_FALSE ;
 
-	if (datasize >= sizeof (SF_CHNA_INFO_16K))
+	if (datasize >= sizeof (SF_CHNA_INFO_FIXED))
 	{	psf->error = SFE_BAD_CHNA_INFO_TOO_BIG ;
 		return SF_FALSE ;
 		} ;
 
-	if (psf->chna_16k == NULL)
-	{	if ((psf->chna_16k = chna_var_alloc ()) == NULL)
+	if (psf->chna_fixed == NULL)
+	{	if ((psf->chna_fixed = chna_var_alloc ()) == NULL)
 		{	psf->error = SFE_MALLOC_FAILED ;
 			return SF_FALSE ;
 			} ;
@@ -60,13 +60,13 @@ int
 chna_var_get (SF_PRIVATE *psf, SF_CHNA_INFO * data, size_t datasize)
 {	size_t size ;
 
-  printf("chna_var_get: %d", datasize);
-	if (psf->chna_16k == NULL)
+  printf("chna_var_get: %d\n", (int)datasize);
+	if (psf->chna_fixed == NULL)
 		return SF_FALSE ;
 
 	size = datasize ;
 
-	memcpy (data, psf->chna_16k, size) ;
+	memcpy (data, psf->chna_fixed, size) ;
 
 	return SF_TRUE ;
 } /* chna_var_get */
