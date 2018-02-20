@@ -208,7 +208,7 @@ enum
 	SFC_WAVEX_GET_AMBISONIC			= 0x1201,
 
 	/*
-	** RF64 files can be set so that on-close, writable files that have less
+	** RF64 and BW64 files can be set so that on-close, writable files that have less
 	** than 4GB of data in them are converted to RIFF/WAV, as per EBU
 	** recommendations.
 	*/

@@ -25,7 +25,6 @@
 
 #include "common.h"
 
-/* i'm not sure if chna.c is neceesary for BW64*/
 
 SF_CHNA_INFO_FIXED*
 chna_var_alloc (void)
@@ -35,7 +34,7 @@ chna_var_alloc (void)
 
 int
 chna_var_set (SF_PRIVATE *psf, const SF_CHNA_INFO * info, size_t datasize)
-{	size_t len ;
+{
 
 	if (info == NULL)
 		return SF_FALSE ;

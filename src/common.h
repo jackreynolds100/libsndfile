@@ -920,7 +920,7 @@ int		flac_open	(SF_PRIVATE *psf) ;
 int		caf_open	(SF_PRIVATE *psf) ;
 int		mpc2k_open	(SF_PRIVATE *psf) ;
 int		rf64_open	(SF_PRIVATE *psf) ;
-int     bw64_open   (SF_PRIVATE *psf) ;
+int   bw64_open   (SF_PRIVATE *psf) ;
 int		ogg_vorbis_open	(SF_PRIVATE *psf) ;
 int		ogg_speex_open	(SF_PRIVATE *psf) ;
 int		ogg_pcm_open	(SF_PRIVATE *psf) ;

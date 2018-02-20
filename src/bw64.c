@@ -44,14 +44,13 @@
 /*------------------------------------------------------------------------------
  ** Macros to handle big/little endian issues.
  */
+#define BW64_MARKER     MAKE_MARKER ('B', 'W', '6', '4')
 #define RIFF_MARKER     MAKE_MARKER ('R', 'I', 'F', 'F')
-#define WAVE_MARKER     MAKE_MARKER ('W', 'A', 'V', 'E')
-
-#define BW64_MARKER     MAKE_MARKER ('b', 'w', '6', '4')
-#define ds64_MARKER     MAKE_MARKER ('d', 's', '6', '4')
-#define fmt_MARKER      MAKE_MARKER ('f', 'm', 't', ' ')
 #define JUNK_MARKER     MAKE_MARKER ('J', 'U', 'N', 'K')
 #define FFFF_MARKER     MAKE_MARKER (0xff, 0xff, 0xff, 0xff)
+#define WAVE_MARKER     MAKE_MARKER ('W', 'A', 'V', 'E')
+#define ds64_MARKER     MAKE_MARKER ('d', 's', '6', '4')
+#define fmt_MARKER      MAKE_MARKER ('f', 'm', 't', ' ')
 #define fact_MARKER     MAKE_MARKER ('f', 'a', 'c', 't')
 #define data_MARKER     MAKE_MARKER ('d', 'a', 't', 'a')
 #define axml_MARKER     MAKE_MARKER ('a', 'x', 'm', 'l')
@@ -71,16 +70,16 @@
  ** Private static functions.
  */
 
-static int    BW64_read_header (SF_PRIVATE *psf, int *blockalign, int *framesperblock) ;
-static int    BW64_write_header (SF_PRIVATE *psf, int calc_length) ;
-static int    BW64_write_tailer (SF_PRIVATE *psf) ;
-static int    BW64_close (SF_PRIVATE *psf) ;
-static int    BW64_command (SF_PRIVATE *psf, int command, void * UNUSED (data), int datasize) ;
+static int    bw64_read_header (SF_PRIVATE *psf, int *blockalign, int *framesperblock) ;
+static int    bw64_write_header (SF_PRIVATE *psf, int calc_length) ;
+static int    bw64_write_tailer (SF_PRIVATE *psf) ;
+static int    bw64_close (SF_PRIVATE *psf) ;
+static int    bw64_command (SF_PRIVATE *psf, int command, void * UNUSED (data), int datasize) ;
 
-static int    BW64_set_chunk (SF_PRIVATE *psf, const SF_CHUNK_INFO * chunk_info) ;
-static        SF_CHUNK_ITERATOR * BW64_next_chunk_iterator (SF_PRIVATE *psf, SF_CHUNK_ITERATOR * iterator) ;
-static int    BW64_get_chunk_size (SF_PRIVATE *psf, const SF_CHUNK_ITERATOR * iterator, SF_CHUNK_INFO * chunk_info) ;
-static int    BW64_get_chunk_data (SF_PRIVATE *psf, const SF_CHUNK_ITERATOR * iterator, SF_CHUNK_INFO * chunk_info) ;
+static int    bw64_set_chunk (SF_PRIVATE *psf, const SF_CHUNK_INFO * chunk_info) ;
+static        SF_CHUNK_ITERATOR * bw64_next_chunk_iterator (SF_PRIVATE *psf, SF_CHUNK_ITERATOR * iterator) ;
+static int    bw64_get_chunk_size (SF_PRIVATE *psf, const SF_CHUNK_ITERATOR * iterator, SF_CHUNK_INFO * chunk_info) ;
+static int    bw64_get_chunk_data (SF_PRIVATE *psf, const SF_CHUNK_ITERATOR * iterator, SF_CHUNK_INFO * chunk_info) ;
 
 /*------------------------------------------------------------------------------
  ** Public function.
@@ -102,13 +101,14 @@ bw64_open (SF_PRIVATE *psf)
 
     psf->strings.flags = SF_STR_ALLOW_START | SF_STR_ALLOW_END ;
 
+    printf("bw64_open: mode=%x\n", psf->file.mode);
     if (psf->file.mode == SFM_READ || (psf->file.mode == SFM_RDWR && psf->filelength > 0))
-    {    if ((error = BW64_read_header (psf, &blockalign, &framesperblock)) != 0)
+    {    if ((error = bw64_read_header (psf, &blockalign, &framesperblock)) != 0)
         return error ;
 
-        psf->next_chunk_iterator = BW64_next_chunk_iterator ;
-        psf->get_chunk_size = BW64_get_chunk_size ;
-        psf->get_chunk_data = BW64_get_chunk_data ;
+        psf->next_chunk_iterator = bw64_next_chunk_iterator ;
+        psf->get_chunk_size = bw64_get_chunk_size ;
+        psf->get_chunk_data = bw64_get_chunk_data ;
     } ;
 
     if ((psf->sf.format & SF_FORMAT_TYPEMASK) != SF_FORMAT_BW64)
@@ -122,15 +122,15 @@ bw64_open (SF_PRIVATE *psf)
 
         psf->blockwidth = psf->bytewidth * psf->sf.channels ;
 
-        if ((error = BW64_write_header (psf, SF_FALSE)))
+        if ((error = bw64_write_header (psf, SF_FALSE)))
             return error ;
 
-        psf->write_header = BW64_write_header ;
-        psf->set_chunk = BW64_set_chunk ;
+        psf->write_header = bw64_write_header ;
+        psf->set_chunk = bw64_set_chunk ;
     } ;
 
-    psf->container_close = BW64_close ;
-    psf->command = BW64_command ;
+    psf->container_close = bw64_close ;
+    psf->command = bw64_command ;
 
     switch (subformat)
     {   case SF_FORMAT_PCM_U8 :
@@ -163,7 +163,10 @@ bw64_open (SF_PRIVATE *psf)
             return SFE_UNIMPLEMENTED ;
     } ;
 
-    // This is just printing out chna contents for debugging
+    printf("bw64_open: debugging...\n");
+
+    // This is just printing out chna contents for debugging when reading
+    if (psf->file.mode == SFM_READ)
     {
         SF_CHNA_INFO_FIXED *b ;
         int i, j;
@@ -211,19 +214,20 @@ bw64_open (SF_PRIVATE *psf)
 /*------------------------------------------------------------------------------
  */
 enum
-{   HAVE_ds64   = 0x01,
+{   HAVE_RIFF   = 0x01
+    HAVE_ds64   = 0x01,
     HAVE_fmt    = 0x02,
-    HAVE_chna   = 0x04,
-    HAVE_axml   = 0x08,
     HAVE_data   = 0x10,
     HAVE_PEAK   = 0x20,
-    HAVE_other  = 0x80
+    HAVE_chna   = 0x40,
+    HAVE_axml   = 0x80,
+    HAVE_other  = 0x80000000
 } ;
 
 #define HAVE_CHUNK(CHUNK)    ((parsestage & CHUNK) != 0)
 
 static int
-BW64_read_header (SF_PRIVATE *psf, int *blockalign, int *framesperblock)
+bw64_read_header (SF_PRIVATE *psf, int *blockalign, int *framesperblock)
 {    WAVLIKE_PRIVATE    *wpriv ;
     WAV_FMT        *wav_fmt ;
     sf_count_t riff_size = 0, frame_count = 0, ds64_datalength = 0 ;
@@ -236,8 +240,8 @@ BW64_read_header (SF_PRIVATE *psf, int *blockalign, int *framesperblock)
 
     /* Set position to start of file to begin reading header. */
     psf_binheader_readf (psf, "pmmm", 0, &marker, marks, marks + 1) ;
-    //printf("BW64_read_header: %x %x %x %x\n", marker, BW64_MARKER, marks[1], WAVE_MARKER);
-    if (/*marker != BW64_MARKER || */marks [1] != WAVE_MARKER)   // Ignoring RIFF == bw64 comparison for now..
+    //printf("BW64_read_header: %x %x %x %x\n", marker, bw64_MARKER, marks[1], WAVE_MARKER);
+    if (/*marker != bw64_MARKER || */marks [1] != WAVE_MARKER)   // Ignoring RIFF == bw64 comparison for now..
         return SFE_BW64_NOT_BW64 ;
 
     if (marks [0] == FFFF_MARKER)
@@ -532,7 +536,7 @@ BW64_read_header (SF_PRIVATE *psf, int *blockalign, int *framesperblock)
         psf->sf.format |= SF_ENDIAN_BIG ;
 
     return 0 ;
-} /* BW64_read_header */
+} /* bw64_read_header */
 
 
     /* the extraData array in FormatChunk is used when the formatTag is set to 0xFFFE (WAVE_FORMAT_EXTENSIBLE)
@@ -543,7 +547,7 @@ BW64_read_header (SF_PRIVATE *psf, int *blockalign, int *framesperblock)
     ** recommended to set formatTag of 0x0001 for PCM audio and 0x0000 (formatTag = unknown) for all other non-PCM audio.
     */
 static int
-BW64_write_fmt_chunk (SF_PRIVATE *psf)
+bw64_write_fmt_chunk (SF_PRIVATE *psf)
 {    WAVLIKE_PRIVATE    *wpriv ;
     int subformat;
     int fmt_size = 2 + 2 + 4 + 4 + 2 + 2 + 2;
@@ -585,11 +589,11 @@ BW64_write_fmt_chunk (SF_PRIVATE *psf)
     psf_binheader_writef (psf, "2", BHW2 (psf->bytewidth * 8)) ;
 
     return 0 ;
-} /* BW64_write_fmt_chunk */
+} /* bw64_write_fmt_chunk */
 
 
 static int
-BW64_write_header (SF_PRIVATE *psf, int calc_length)
+bw64_write_header (SF_PRIVATE *psf, int calc_length)
 {    sf_count_t    current, pad_size ;
     int         error = 0, has_data = SF_FALSE, add_fact_chunk = 0 ;
     WAVLIKE_PRIVATE    *wpriv ;
@@ -641,7 +645,7 @@ BW64_write_header (SF_PRIVATE *psf, int calc_length)
 
         /*case SF_FORMAT_WAVEX :*/
         case SF_FORMAT_BW64 :
-            if ((error = BW64_write_fmt_chunk (psf)) != 0)
+            if ((error = bw64_write_fmt_chunk (psf)) != 0)
                 return error ;
             //if (add_fact_chunk)
                 //psf_binheader_writef (psf, "tm48", BHWm (fact_MARKER), BHW4 (4), BHW8 (psf->sf.frames)) ;//fact_chunk unused
@@ -657,6 +661,9 @@ BW64_write_header (SF_PRIVATE *psf, int calc_length)
 
     if (psf->peak_info != NULL && psf->peak_info->peak_loc == SF_PEAK_START)
         wavlike_write_peak_chunk (psf) ;
+
+    if (psf->chna_fixed != NULL)
+      	wavlike_write_chna_chunk (psf) ;
 
     /* Write custom headers. */
     if (psf->wchunks.used > 0)
@@ -692,7 +699,7 @@ BW64_write_header (SF_PRIVATE *psf, int calc_length)
 } /* BW64_write_header */
 
 static int
-BW64_write_tailer (SF_PRIVATE *psf)
+bw64_write_tailer (SF_PRIVATE *psf)
 {
     /* Reset the current header buffer length to zero. */
     psf->header.ptr [0] = 0 ;
@@ -719,21 +726,21 @@ BW64_write_tailer (SF_PRIVATE *psf)
         psf_fwrite (psf->header.ptr, psf->header.indx, 1, psf) ;
 
     return 0 ;
-} /* BW64_write_tailer */
+} /* bw64_write_tailer */
 
 static int
-BW64_close (SF_PRIVATE *psf)
+bw64_close (SF_PRIVATE *psf)
 {
     if (psf->file.mode == SFM_WRITE || psf->file.mode == SFM_RDWR)
-    {    BW64_write_tailer (psf) ;
-        BW64_write_header (psf, SF_TRUE) ;
+    {    bw64_write_tailer (psf) ;
+        bw64_write_header (psf, SF_TRUE) ;
     } ;
 
     return 0 ;
-} /* BW64_close */
+} /* bw64_close */
 
 static int
-BW64_command (SF_PRIVATE *psf, int command, void * UNUSED (data), int datasize)
+bw64_command (SF_PRIVATE *psf, int command, void * UNUSED (data), int datasize)
 {    WAVLIKE_PRIVATE    *wpriv ;
 
     if ((wpriv = psf->container_data) == NULL)
@@ -754,17 +761,17 @@ BW64_command (SF_PRIVATE *psf, int command, void * UNUSED (data), int datasize)
 } /* BW64_command */
 
 static int
-BW64_set_chunk (SF_PRIVATE *psf, const SF_CHUNK_INFO * chunk_info)
+bw64_set_chunk (SF_PRIVATE *psf, const SF_CHUNK_INFO * chunk_info)
 {    return psf_save_write_chunk (&psf->wchunks, chunk_info) ;
-} /* BW64_set_chunk */
+} /* bw64_set_chunk */
 
 static SF_CHUNK_ITERATOR *
-BW64_next_chunk_iterator (SF_PRIVATE *psf, SF_CHUNK_ITERATOR * iterator)
+bw64_next_chunk_iterator (SF_PRIVATE *psf, SF_CHUNK_ITERATOR * iterator)
 {    return psf_next_chunk_iterator (&psf->rchunks, iterator) ;
-} /* BW64_next_chunk_iterator */
+} /* bw64_next_chunk_iterator */
 
 static int
-BW64_get_chunk_size (SF_PRIVATE *psf, const SF_CHUNK_ITERATOR * iterator, SF_CHUNK_INFO * chunk_info)
+bw64_get_chunk_size (SF_PRIVATE *psf, const SF_CHUNK_ITERATOR * iterator, SF_CHUNK_INFO * chunk_info)
 {    int indx ;
 
     if ((indx = psf_find_read_chunk_iterator (&psf->rchunks, iterator)) < 0)
@@ -776,7 +783,7 @@ BW64_get_chunk_size (SF_PRIVATE *psf, const SF_CHUNK_ITERATOR * iterator, SF_CHU
 } /* BW64_get_chunk_size */
 
 static int
-BW64_get_chunk_data (SF_PRIVATE *psf, const SF_CHUNK_ITERATOR * iterator, SF_CHUNK_INFO * chunk_info)
+bw64_get_chunk_data (SF_PRIVATE *psf, const SF_CHUNK_ITERATOR * iterator, SF_CHUNK_INFO * chunk_info)
 {    int indx ;
     sf_count_t pos ;
 
@@ -795,4 +802,4 @@ BW64_get_chunk_data (SF_PRIVATE *psf, const SF_CHUNK_ITERATOR * iterator, SF_CHU
     psf_fseek (psf, pos, SEEK_SET) ;
 
     return SFE_NO_ERROR ;
-} /* BW64_get_chunk_data */
+} /* bw64_get_chunk_data */

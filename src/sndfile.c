@@ -97,11 +97,11 @@ ErrorStruct SndfileErrors [] =
 								, "Error : SF_BROADCAST_INFO struct too large." },
 	{	SFE_BAD_CART_INFO_SIZE	, "Error: SF_CART_INFO struct too large." },
 	{	SFE_BAD_CART_INFO_TOO_BIG, "Error: bad tag_text_size in SF_CART_INFO struct." },
-    {   SFE_BAD_CHNA_INFO_SIZE   , "Error: SF_CHNA_INFO struct too large." },
-    {   SFE_BAD_CHNA_INFO_TOO_BIG, "Error: bad tag_text_size in SF_CHNA_INFO struct." },
-    {   SFE_BAD_AXML_INFO_SIZE   , "Error: SF_AXML_INFO struct too large." },
-    {   SFE_BAD_AXML_INFO_TOO_BIG, "Error: bad tag_text_size in SF_AXML_INFO struct." },
-    {	SFE_INTERLEAVE_MODE		, "Attempt to write to file with non-interleaved data." },
+  { SFE_BAD_CHNA_INFO_SIZE   , "Error: SF_CHNA_INFO struct too large." },
+  { SFE_BAD_CHNA_INFO_TOO_BIG, "Error: bad tag_text_size in SF_CHNA_INFO struct." },
+  { SFE_BAD_AXML_INFO_SIZE   , "Error: SF_AXML_INFO struct too large." },
+  { SFE_BAD_AXML_INFO_TOO_BIG, "Error: bad tag_text_size in SF_AXML_INFO struct." },
+  {	SFE_INTERLEAVE_MODE		, "Attempt to write to file with non-interleaved data." },
 	{	SFE_INTERLEAVE_SEEK		, "Bad karma in seek during interleave read operation." },
 	{	SFE_INTERLEAVE_READ		, "Bad karma in read during interleave read operation." },
 
@@ -263,11 +263,11 @@ ErrorStruct SndfileErrors [] =
 	{	SFE_RF64_NOT_RF64		, "Error : Not an RF64 file." },
 	{	SFE_RF64_PEAK_B4_FMT	, "Error in RF64 file. 'PEAK' chunk found before 'fmt ' chunk." },
 	{	SFE_RF64_NO_DATA		, "Error in RF64 file. No 'data' chunk marker." },
-    {   SFE_BW64_NOT_BW64       , "Error : Not a BW64 file." },
-    {   SFE_BW64_PEAK_B4_FMT    , "Error in RF64 file. 'PEAK' chunk found before 'fmt ' chunk." },
-    {   SFE_BW64_NO_DATA        , "Error in RF64 file. No 'data' chunk marker." },
+  { SFE_BW64_NOT_BW64       , "Error : Not a BW64 file." },
+  { SFE_BW64_PEAK_B4_FMT    , "Error in RF64 file. 'PEAK' chunk found before 'fmt ' chunk." },
+  { SFE_BW64_NO_DATA        , "Error in RF64 file. No 'data' chunk marker." },
 
-    {	SFE_ALAC_FAIL_TMPFILE	, "Error : Failed to open tmp file for ALAC encoding." },
+  {	SFE_ALAC_FAIL_TMPFILE	, "Error : Failed to open tmp file for ALAC encoding." },
 
 	{	SFE_BAD_CHUNK_PTR		, "Error : Bad SF_CHUNK_INFO pointer." },
 	{	SFE_UNKNOWN_CHUNK		, "Error : Unknown chunk marker." },
@@ -353,6 +353,8 @@ sf_open	(const char *path, int mode, SF_INFO *sfinfo)
 		psf->error = psf_set_stdio (psf) ;
 	else
 		psf->error = psf_fopen (psf) ;
+
+  printf("sf_open: file=%s\n", path);
 
 	return psf_open_file (psf, sfinfo) ;
 } /* sf_open */
@@ -861,18 +863,18 @@ sf_format_check	(const SF_INFO *info)
 					return 1 ;
 				break ;
 
-        case SF_FORMAT_BW64 :
-            if (endian == SF_ENDIAN_BIG || endian == SF_ENDIAN_CPU)
-                return 0 ;
-            if (subformat == SF_FORMAT_PCM_U8 || subformat == SF_FORMAT_PCM_16)
-                return 1 ;
-            if (subformat == SF_FORMAT_PCM_24 || subformat == SF_FORMAT_PCM_32)
-                return 1 ;
-            if (subformat == SF_FORMAT_ULAW || subformat == SF_FORMAT_ALAW)
-                return 1 ;
-            if (subformat == SF_FORMAT_FLOAT || subformat == SF_FORMAT_DOUBLE)
-                return 1 ;
-            break ;
+    case SF_FORMAT_BW64 :
+        if (endian == SF_ENDIAN_BIG || endian == SF_ENDIAN_CPU)
+            return 0 ;
+        if (subformat == SF_FORMAT_PCM_U8 || subformat == SF_FORMAT_PCM_16)
+            return 1 ;
+        if (subformat == SF_FORMAT_PCM_24 || subformat == SF_FORMAT_PCM_32)
+            return 1 ;
+        if (subformat == SF_FORMAT_ULAW || subformat == SF_FORMAT_ALAW)
+            return 1 ;
+        if (subformat == SF_FORMAT_FLOAT || subformat == SF_FORMAT_DOUBLE)
+            return 1 ;
+        break ;
 
 		default : break ;
 		} ;
@@ -1009,8 +1011,8 @@ sf_command	(SNDFILE *sndfile, int command, void *data, int datasize)
 					case SF_FORMAT_WAV :
 					case SF_FORMAT_WAVEX :
 					case SF_FORMAT_RF64 :
-                    case SF_FORMAT_BW64 :
-                        break ;
+          case SF_FORMAT_BW64 :
+          break ;
 
 					default :
 						return SF_FALSE ;
@@ -2818,8 +2820,8 @@ guess_file_type (SF_PRIVATE *psf)
 	if (buffer [0] == MAKE_MARKER ('R', 'F', '6', '4') && buffer [2] == MAKE_MARKER ('W', 'A', 'V', 'E'))
 		return SF_FORMAT_RF64 ;
 
-    if (buffer [0] == MAKE_MARKER ('B', 'W', '6', '4') && buffer [2] == MAKE_MARKER ('W', 'A', 'V', 'E'))
-        return SF_FORMAT_BW64 ;
+  if (buffer [0] == MAKE_MARKER ('b', 'w', '6', '4') && buffer [2] == MAKE_MARKER ('W', 'A', 'V', 'E'))
+      return SF_FORMAT_BW64 ;
 
     if (buffer [0] == MAKE_MARKER ('I', 'D', '3', 3))
 	{	psf_log_printf (psf, "Found 'ID3' marker.\n") ;
@@ -3061,6 +3063,7 @@ psf_open_file (SF_PRIVATE *psf, SF_INFO *sfinfo)
 	else
 		psf_log_printf (psf, "Length : %D\n", psf->filelength) ;
 
+
 	if (psf->file.mode == SFM_WRITE || (psf->file.mode == SFM_RDWR && psf->filelength == 0))
 	{	/* If the file is being opened for write or RDWR and the file is currently
 		** empty, then the SF_INFO struct must contain valid data.
@@ -3074,6 +3077,8 @@ psf_open_file (SF_PRIVATE *psf, SF_INFO *sfinfo)
 			goto error_exit ;
 			} ;
 
+
+
 		if (sf_format_check (&psf->sf) == 0)
 		{	error = SFE_BAD_OPEN_FORMAT ;
 			goto error_exit ;
@@ -3086,6 +3091,7 @@ psf_open_file (SF_PRIVATE *psf, SF_INFO *sfinfo)
 		if (psf->sf.format == 0)
 			psf->sf.format = format_from_extension (psf) ;
 		} ;
+
 
 	/* Prevent unnecessary seeks */
 	psf->last_op = psf->file.mode ;
@@ -3119,13 +3125,15 @@ psf_open_file (SF_PRIVATE *psf, SF_INFO *sfinfo)
 				break ;
 		} ;
 
+  printf("SF_CONTAINER: format=%x\n", psf->sf.format);
+
 	/* Call the initialisation function for the relevant file type. */
 	switch (SF_CONTAINER (psf->sf.format))
 	{	case	SF_FORMAT_WAV :
 		case	SF_FORMAT_WAVEX :
-		    error = bw64_open (psf) ;   // TEMPORARY CHANGE - as BW64 isn't being picked up always.
-				//error = wav_open (psf) ;
+				error = wav_open (psf) ;
 				break ;
+
 
 		case	SF_FORMAT_AIFF :
 				error = aiff_open (psf) ;

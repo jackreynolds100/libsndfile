@@ -1337,6 +1337,7 @@ wavlike_read_chna_chunk (SF_PRIVATE *psf, uint32_t chunksize)
         bytes += psf_binheader_readf (psf, "b", &(chna_track->trackRef), sizeof (chna_track->trackRef)) ;
         bytes += psf_binheader_readf (psf, "b", &(chna_track->packRef), sizeof (chna_track->packRef)) ;
         bytes += psf_binheader_readf (psf, "b", &(chna_track->pad), sizeof (chna_track->pad)) ;
+				printf("wavlike_read_chna_chunk: %s\n", chna_track->UID);
     }
     return 0 ;
 } /* wavlike_read_chna_chunk */

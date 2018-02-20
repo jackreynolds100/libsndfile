@@ -41,6 +41,7 @@
 #define fmt_MARKER		(MAKE_MARKER ('f', 'm', 't', ' '))
 #define fact_MARKER		(MAKE_MARKER ('f', 'a', 'c', 't'))
 
+#define bw64_MARKER   (MAKE_MARKER ('b', 'w', '6', '4'))
 #define cue_MARKER		(MAKE_MARKER ('c', 'u', 'e', ' '))
 #define slnt_MARKER		(MAKE_MARKER ('s', 'l', 'n', 't'))
 #define wavl_MARKER		(MAKE_MARKER ('w', 'a', 'v', 'l'))
@@ -83,6 +84,8 @@ enum
 	HAVE_fact	= 0x08,
 	HAVE_PEAK	= 0x10,
 	HAVE_data	= 0x20,
+	HAVE_chna = 0x40,
+	HAVE_axml = 0x80,
 	HAVE_other	= 0x80000000
 } ;
 
@@ -542,6 +545,22 @@ wav_read_header	(SF_PRIVATE *psf, int *blockalign, int *framesperblock)
 					if ((error = wavlike_read_bext_chunk (psf, chunk_size)))
 						return error ;
 					break ;
+
+			case chna_MARKER :
+
+
+					if ((error = wavlike_read_chna_chunk (psf, chunk_size)) != 0)
+							return error ;
+					parsestage |= HAVE_chna ;
+					break;
+
+			case axml_MARKER :
+					if ((error = wavlike_read_axml_chunk (psf, chunk_size)) != 0)
+							return error ;
+					parsestage |= HAVE_axml ;
+					break ;
+
+printf ("chna_marker_found \n");
 
 			case PAD_MARKER :
 					/*
@@ -1066,6 +1085,12 @@ wav_write_header (SF_PRIVATE *psf, int calc_length)
 
 	if (psf->broadcast_16k != NULL)
 		wavlike_write_bext_chunk (psf) ;
+
+	if (psf->chna_fixed != NULL)
+		wavlike_write_chna_chunk (psf) ;
+
+	if (psf->axml_16k != NULL)
+		wavlike_write_axml_chunk (psf) ;
 
 	if (psf->cart_16k != NULL)
 		wavlike_write_cart_chunk (psf) ;

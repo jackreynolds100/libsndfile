@@ -38,8 +38,8 @@
 #define LIST_MARKER		MAKE_MARKER ('L', 'I', 'S', 'T')
 #define PAD_MARKER		MAKE_MARKER ('P', 'A', 'D', ' ')
 #define PEAK_MARKER		MAKE_MARKER ('P', 'E', 'A', 'K')
-#define axml_MARKER     MAKE_MARKER ('a', 'x', 'm', 'l')
-#define chna_MARKER     MAKE_MARKER ('c', 'h', 'n', 'a')
+#define axml_MARKER   MAKE_MARKER ('a', 'x', 'm', 'l')
+#define chna_MARKER   MAKE_MARKER ('c', 'h', 'n', 'a')
 #define ISFT_MARKER		MAKE_MARKER ('I', 'S', 'F', 'T')
 #define ICRD_MARKER		MAKE_MARKER ('I', 'C', 'R', 'D')
 #define ICOP_MARKER		MAKE_MARKER ('I', 'C', 'O', 'P')
@@ -314,7 +314,7 @@ typedef struct
 	** header.
 	*/
 	int rf64_downgrade ;
-    int bw64_downgrade ;
+  int bw64_downgrade ;
 } WAVLIKE_PRIVATE ;
 
 #define		WAVLIKE_GSM610_BLOCKSIZE	65
@@ -354,13 +354,12 @@ void	wavlike_write_strings (SF_PRIVATE *psf, int location) ;
 int		wavlike_read_peak_chunk (SF_PRIVATE * psf, size_t chunk_size) ;
 void	wavlike_write_peak_chunk (SF_PRIVATE * psf) ;
 
-int    wavlike_read_axml_chunk (SF_PRIVATE * psf, uint32_t chunksize) ;
-int    wavlike_write_axml_chunk (SF_PRIVATE * psf) ;
+int   wavlike_read_axml_chunk (SF_PRIVATE * psf, uint32_t chunksize) ;
+int   wavlike_write_axml_chunk (SF_PRIVATE * psf) ;
 
-int     wavlike_read_chna_chunk (SF_PRIVATE * psf, uint32_t chunksize) ;
-int     wavlike_write_chna_chunk (SF_PRIVATE * psf) ;
+int   wavlike_read_chna_chunk (SF_PRIVATE * psf, uint32_t chunksize) ;
+int   wavlike_write_chna_chunk (SF_PRIVATE * psf) ;
 
-void    wavlike_write_custom_chunks (SF_PRIVATE * psf) ;
+void  wavlike_write_custom_chunks (SF_PRIVATE * psf) ;
 
 #endif
-
