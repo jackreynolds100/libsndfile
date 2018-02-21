@@ -41,8 +41,8 @@
 #define		M_PI		3.14159265358979323846264338
 #endif
 
-#define		SAMPLE_RATE			44100
-#define		SAMPLE_COUNT		(SAMPLE_RATE * 4)	/* 4 seconds */
+#define		SAMPLE_RATE			48000
+#define		SAMPLE_COUNT		(SAMPLE_RATE * 16000)	/* 4 seconds */
 #define		AMPLITUDE			(1.0 * 0x7F000000)
 #define		LEFT_FREQ			(344.0 / SAMPLE_RATE)
 #define		RIGHT_FREQ			(466.0 / SAMPLE_RATE)
@@ -53,6 +53,9 @@ main (void)
 	SF_INFO	sfinfo ;
 	int		k ;
 	int	*buffer ;
+
+	/* Enable auto downgrade on file close. */
+sf_command (sndfile, SFC_RF64_AUTO_DOWNGRADE, NULL, SF_TRUE) ;
 
 	printf("main: ready to open\n");
 
@@ -67,11 +70,10 @@ main (void)
 	sfinfo.samplerate	= SAMPLE_RATE ;
 	sfinfo.frames		= SAMPLE_COUNT ;
 	sfinfo.channels		= 2 ;
-	sfinfo.format		= (SF_FORMAT_BW64 | SF_FORMAT_PCM_24) ;
+	sfinfo.format		= (SF_FORMAT_RF64 | SF_FORMAT_PCM_24) ;
 
 
-
-	if (! (file = sf_open ("sine.wav", SFM_WRITE, &sfinfo)))
+	if (! (file = sf_open ("rf64_large_sine.wav", SFM_WRITE, &sfinfo)))
 
 	{	printf ("Error : Not able to open output file.\n") ;
 		free (buffer) ;

@@ -214,7 +214,7 @@ bw64_open (SF_PRIVATE *psf)
 /*------------------------------------------------------------------------------
  */
 enum
-{   HAVE_RIFF   = 0x01
+{   //HAVE_RIFF   = 0x01
     HAVE_ds64   = 0x01,
     HAVE_fmt    = 0x02,
     HAVE_data   = 0x10,
