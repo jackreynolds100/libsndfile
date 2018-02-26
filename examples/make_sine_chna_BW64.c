@@ -41,7 +41,7 @@
 #define		M_PI		3.14159265358979323846264338
 #endif
 
-#define		SAMPLE_RATE			44100
+#define		SAMPLE_RATE			48000
 #define		SAMPLE_COUNT		(SAMPLE_RATE * 4)	/* 4 seconds */
 #define		AMPLITUDE			(1.0 * 0x7F000000)
 #define		LEFT_FREQ			(344.0 / SAMPLE_RATE)
@@ -54,7 +54,8 @@ main (void)
 	int		k ;
 	int	*buffer ;
 
-	printf("main: ready to open\n");
+	/* Enable auto downgrade on file close. */
+
 
 	if (! (buffer = malloc (2 * SAMPLE_COUNT * sizeof (int))))
 	{	printf ("Error : Malloc failed.\n") ;
@@ -70,13 +71,14 @@ main (void)
 	sfinfo.format		= (SF_FORMAT_BW64 | SF_FORMAT_PCM_24) ;
 
 
-
-	if (! (file = sf_open ("sine.wav", SFM_WRITE, &sfinfo)))
+	if (! (file = sf_open ("BW64_small_sine.wav", SFM_WRITE, &sfinfo)))
 
 	{	printf ("Error : Not able to open output file.\n") ;
 		free (buffer) ;
 		return 1 ;
 		} ;
+
+sf_command (file, SFC_BW64_AUTO_DOWNGRADE, NULL, SF_TRUE) ;
 
 	if (sfinfo.channels == 1)
 	{	for (k = 0 ; k < SAMPLE_COUNT ; k++)

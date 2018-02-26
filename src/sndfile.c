@@ -3125,7 +3125,7 @@ psf_open_file (SF_PRIVATE *psf, SF_INFO *sfinfo)
 				break ;
 		} ;
 
-  printf("SF_CONTAINER: format=%x\n", psf->sf.format);
+  //printf("SF_CONTAINER: format=%x\n", psf->sf.format);
 
 	/* Call the initialisation function for the relevant file type. */
 	switch (SF_CONTAINER (psf->sf.format))

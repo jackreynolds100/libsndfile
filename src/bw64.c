@@ -101,7 +101,6 @@ bw64_open (SF_PRIVATE *psf)
 
     psf->strings.flags = SF_STR_ALLOW_START | SF_STR_ALLOW_END ;
 
-    printf("bw64_open: mode=%x\n", psf->file.mode);
     if (psf->file.mode == SFM_READ || (psf->file.mode == SFM_RDWR && psf->filelength > 0))
     {    if ((error = bw64_read_header (psf, &blockalign, &framesperblock)) != 0)
         return error ;
@@ -163,9 +162,8 @@ bw64_open (SF_PRIVATE *psf)
             return SFE_UNIMPLEMENTED ;
     } ;
 
-    printf("bw64_open: debugging...\n");
 
-    // This is just printing out chna contents for debugging when reading
+
     if (psf->file.mode == SFM_READ)
     {
         SF_CHNA_INFO_FIXED *b ;
@@ -190,6 +188,8 @@ bw64_open (SF_PRIVATE *psf)
             printf("chna: [%d] packRef=", i);
             for (j = 0; j < 11; j++) printf("%c", chna_track->packRef[j]);
             printf("\n");
+
+            printf("chna_fixed: mode=%x\n", psf->file.mode);
         }
     }
 
@@ -214,7 +214,7 @@ bw64_open (SF_PRIVATE *psf)
 /*------------------------------------------------------------------------------
  */
 enum
-{   HAVE_RIFF   = 0x01
+{
     HAVE_ds64   = 0x01,
     HAVE_fmt    = 0x02,
     HAVE_data   = 0x10,
@@ -539,6 +539,7 @@ bw64_read_header (SF_PRIVATE *psf, int *blockalign, int *framesperblock)
 } /* bw64_read_header */
 
 
+
     /* the extraData array in FormatChunk is used when the formatTag is set to 0xFFFE (WAVE_FORMAT_EXTENSIBLE)
     ** As multichannel audio should be described using ADM metadata, the use of the formatTag should be avoided
     ** However, it should be possible that implementations are able to deal with reading a file containing this
@@ -632,7 +633,13 @@ bw64_write_header (SF_PRIVATE *psf, int calc_length)
         /* Currently no table. */
         psf_binheader_writef (psf, "m48884", BHWm (ds64_MARKER), BHW4 (28), BHW8 (psf->filelength - 8), BHW8 (psf->datalength), BHW8 (psf->sf.frames), BHW4 (0)) ;
     } ;
+    psf_binheader_writef (psf, "m4", BHWm (chna_MARKER)) ;
+  //  if (psf->chna_fixed != NULL){
+        int returntest = wavlike_write_chna_chunk (psf) ;
+        printf("return %d", returntest);
+    //  }
 
+    psf_binheader_writef (psf, "em4m", BHWm (axml_MARKER)) ;
     /* WAVE and 'fmt ' markers. */
     psf_binheader_writef (psf, "m", BHWm (fmt_MARKER)) ;
 
@@ -647,8 +654,6 @@ bw64_write_header (SF_PRIVATE *psf, int calc_length)
         case SF_FORMAT_BW64 :
             if ((error = bw64_write_fmt_chunk (psf)) != 0)
                 return error ;
-            //if (add_fact_chunk)
-                //psf_binheader_writef (psf, "tm48", BHWm (fact_MARKER), BHW4 (4), BHW8 (psf->sf.frames)) ;//fact_chunk unused
             break ;
 
         default :
@@ -662,8 +667,6 @@ bw64_write_header (SF_PRIVATE *psf, int calc_length)
     if (psf->peak_info != NULL && psf->peak_info->peak_loc == SF_PEAK_START)
         wavlike_write_peak_chunk (psf) ;
 
-    if (psf->chna_fixed != NULL)
-      	wavlike_write_chna_chunk (psf) ;
 
     /* Write custom headers. */
     if (psf->wchunks.used > 0)

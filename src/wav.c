@@ -1089,6 +1089,8 @@ wav_write_header (SF_PRIVATE *psf, int calc_length)
 	if (psf->chna_fixed != NULL)
 		wavlike_write_chna_chunk (psf) ;
 
+	printf("wav_write_chna\n");
+
 	if (psf->axml_16k != NULL)
 		wavlike_write_axml_chunk (psf) ;
 
