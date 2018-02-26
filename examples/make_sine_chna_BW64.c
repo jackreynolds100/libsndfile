@@ -56,6 +56,7 @@ main (void)
 
 	/* Enable auto downgrade on file close. */
 
+	printf("main: ready to open\n");
 
 	if (! (buffer = malloc (2 * SAMPLE_COUNT * sizeof (int))))
 	{	printf ("Error : Malloc failed.\n") ;
