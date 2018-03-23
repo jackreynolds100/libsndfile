@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\matthewf\Desktop\Reaper ADM\libsndfile\CMakeLists.txt" />
+    <CustomBuild Include="C:\Users\matthewf\Desktop\Reaper ADM\libsndfile\VS\CMakeFiles\afc0e57a26e3e4851b0b41996424727c\Experimental.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="C:\Users\matthewf\Desktop\Reaper ADM\libsndfile\VS\CMakeFiles\Experimental" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{CA0228DE-F91B-3CD5-9FD8-FF7DB2696A5E}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

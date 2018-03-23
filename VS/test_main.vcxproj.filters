@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Users\matthewf\Desktop\Reaper ADM\libsndfile\src\test_main.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\matthewf\Desktop\Reaper ADM\libsndfile\src\test_conversions.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\matthewf\Desktop\Reaper ADM\libsndfile\src\test_float.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\matthewf\Desktop\Reaper ADM\libsndfile\VS\src\test_endswap.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\matthewf\Desktop\Reaper ADM\libsndfile\src\test_audio_detect.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\matthewf\Desktop\Reaper ADM\libsndfile\src\test_log_printf.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\matthewf\Desktop\Reaper ADM\libsndfile\src\test_file_io.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\matthewf\Desktop\Reaper ADM\libsndfile\src\test_ima_oki_adpcm.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\matthewf\Desktop\Reaper ADM\libsndfile\src\test_strncpy_crlf.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\matthewf\Desktop\Reaper ADM\libsndfile\src\test_broadcast_var.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\matthewf\Desktop\Reaper ADM\libsndfile\src\test_cart_var.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\matthewf\Desktop\Reaper ADM\libsndfile\src\test_binheader_writef.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="C:\Users\matthewf\Desktop\Reaper ADM\libsndfile\src\test_main.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\matthewf\Desktop\Reaper ADM\libsndfile\CMakeLists.txt" />
+    <CustomBuild Include="C:\Users\matthewf\Desktop\Reaper ADM\libsndfile\src\test_endswap.def">
+      <Filter>Source Files</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{93E32115-DF73-3850-AE43-C3E75071C8BD}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{21134E39-12B8-37DD-BBA9-1FDD02DF4C9D}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
