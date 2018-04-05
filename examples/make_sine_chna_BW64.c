@@ -42,7 +42,7 @@
 #endif
 
 #define		SAMPLE_RATE			48000
-#define		SAMPLE_COUNT		(SAMPLE_RATE * 4)	/* 4 seconds */
+#define		SAMPLE_COUNT		(SAMPLE_RATE * 15000)	/* 4 seconds */
 #define		AMPLITUDE			(1.0 * 0x7F000000)
 #define		LEFT_FREQ			(344.0 / SAMPLE_RATE)
 #define		RIGHT_FREQ			(466.0 / SAMPLE_RATE)
@@ -72,7 +72,7 @@ main (void)
 	sfinfo.format		= (SF_FORMAT_BW64 | SF_FORMAT_PCM_24) ;
 
 
-	if (! (file = sf_open ("BW64_small_sine.wav", SFM_WRITE, &sfinfo)))
+	if (! (file = sf_open ("BW64_4gb_sine.wav", SFM_WRITE, &sfinfo)))
 
 	{	printf ("Error : Not able to open output file.\n") ;
 		free (buffer) ;

@@ -540,13 +540,7 @@ bw64_read_header (SF_PRIVATE *psf, int *blockalign, int *framesperblock)
 
 
 
-    /* the extraData array in FormatChunk is used when the formatTag is set to 0xFFFE (WAVE_FORMAT_EXTENSIBLE)
-    ** As multichannel audio should be described using ADM metadata, the use of the formatTag should be avoided
-    ** However, it should be possible that implementations are able to deal with reading a file containing this
-    ** formatTag and handling it in a sensible manner.
-    ** To ensure the Format_Chunk does not contradict with the <chna> and <axml> chunk information, it is
-    ** recommended to set formatTag of 0x0001 for PCM audio and 0x0000 (formatTag = unknown) for all other non-PCM audio.
-    */
+
 static int
 bw64_write_fmt_chunk (SF_PRIVATE *psf)
 {    WAVLIKE_PRIVATE    *wpriv ;
@@ -585,9 +579,6 @@ bw64_write_fmt_chunk (SF_PRIVATE *psf)
 
     /* cbSize 0 is sizeof this as no waxex used */
     psf_binheader_writef (psf, "2", BHW2 (0)) ;
-
-    /* wValidBitsPerSample, for our use same as bitwidth as we use it fully */
-    psf_binheader_writef (psf, "2", BHW2 (psf->bytewidth * 8)) ;
 
     return 0 ;
 } /* bw64_write_fmt_chunk */
