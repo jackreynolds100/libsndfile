@@ -1345,30 +1345,30 @@ wavlike_read_chna_chunk (SF_PRIVATE *psf, uint32_t chunksize)
 
 int
 wavlike_write_chna_chunk (SF_PRIVATE *psf)
-{  //  SF_CHNA_INFO_FIXED *b ;
-	int returncheck = psf_binheader_writef (psf, "44", BHW4 (1), BHW4 (time (NULL))) ;
-//     uint32_t i;
-//
-//     //if (psf->chna_fixed == NULL)
-//       //  return -1 ;
-//
-//     b = psf->chna_fixed ;
-//
-// 		psf_binheader_writef (psf, "b", BHWv (&(b->numTracks)), BHWz (sizeof (b->numTracks))) ;
-// 		psf_binheader_writef (psf, "b", BHWv (&(b->numUIDs)), BHWz (sizeof (b->numUIDs))) ;
-// 		psf_binheader_writef (psf, "b", BHWv (&(b->audioID)), BHWz (sizeof (b->audioID))) ;
-// 		for (i = 0; i < b->numUIDs; i++)
-//     {
-//         SF_CHNA_TRACK *chna_track;
-//         chna_track = &(b->audioID[i]);
-// 				psf_binheader_writef (psf, "b", BHWv (&(chna_track->trackIndex)), BHWz (sizeof (chna_track->trackIndex))) ;
-// 				psf_binheader_writef (psf, "b", BHWv (&(chna_track->UID)), BHWz (sizeof (chna_track->UID))) ;
-// 				psf_binheader_writef (psf, "b", BHWv (&(chna_track->trackRef)), BHWz (sizeof (chna_track->trackRef))) ;
-// 				psf_binheader_writef (psf, "b", BHWv (&(chna_track->packRef)), BHWz (sizeof (chna_track->packRef))) ;
-// 				psf_binheader_writef (psf, "b", BHWv (&(chna_track->pad)), BHWz (sizeof (chna_track->pad))) ;
-// 		}
+{    SF_CHNA_INFO_FIXED *b ;
+	//int returncheck = psf_binheader_writef (psf, "44", BHW4 (1), BHW4 (time (NULL))) ;
+     uint32_t i;
 
-    return returncheck;
+     if (psf->chna_fixed == NULL)
+         return -1 ;
+
+     b = psf->chna_fixed ;
+
+ 		psf_binheader_writef (psf, "b", BHWv (&(b->numTracks)), BHWz (sizeof (b->numTracks))) ;
+ 		psf_binheader_writef (psf, "b", BHWv (&(b->numUIDs)), BHWz (sizeof (b->numUIDs))) ;
+ 		psf_binheader_writef (psf, "b", BHWv (&(b->audioID)), BHWz (sizeof (b->audioID))) ;
+ 		for (i = 0; i < b->numUIDs; i++)
+     {
+         SF_CHNA_TRACK *chna_track;
+         chna_track = &(b->audioID[i]);
+ 				psf_binheader_writef (psf, "b", BHWv (&(chna_track->trackIndex)), BHWz (sizeof (chna_track->trackIndex))) ;
+ 				psf_binheader_writef (psf, "b", BHWv (&(chna_track->UID)), BHWz (sizeof (chna_track->UID))) ;
+ 				psf_binheader_writef (psf, "b", BHWv (&(chna_track->trackRef)), BHWz (sizeof (chna_track->trackRef))) ;
+ 				psf_binheader_writef (psf, "b", BHWv (&(chna_track->packRef)), BHWz (sizeof (chna_track->packRef))) ;
+ 				psf_binheader_writef (psf, "b", BHWv (&(chna_track->pad)), BHWz (sizeof (chna_track->pad))) ;
+ 		}
+		return 0 ;
+    //return returncheck;
 } /* wavlike_write_chna_chunk */
 
 

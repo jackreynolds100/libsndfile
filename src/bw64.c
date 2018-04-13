@@ -46,10 +46,10 @@
  */
 #define BW64_MARKER     MAKE_MARKER ('B', 'W', '6', '4')
 #define RIFF_MARKER     MAKE_MARKER ('R', 'I', 'F', 'F')
-#define JUNK_MARKER     MAKE_MARKER ('J', 'U', 'N', 'K')
-#define FFFF_MARKER     MAKE_MARKER (0xff, 0xff, 0xff, 0xff)
 #define WAVE_MARKER     MAKE_MARKER ('W', 'A', 'V', 'E')
 #define ds64_MARKER     MAKE_MARKER ('d', 's', '6', '4')
+#define JUNK_MARKER     MAKE_MARKER ('J', 'U', 'N', 'K')
+#define FFFF_MARKER     MAKE_MARKER (0xff, 0xff, 0xff, 0xff)
 #define fmt_MARKER      MAKE_MARKER ('f', 'm', 't', ' ')
 #define fact_MARKER     MAKE_MARKER ('f', 'a', 'c', 't')
 #define data_MARKER     MAKE_MARKER ('d', 'a', 't', 'a')
@@ -174,6 +174,7 @@ bw64_open (SF_PRIVATE *psf)
         printf("chna: ckSize=%d\n", b->ckSize);
         printf("chna: numTracks=%d\n", b->numTracks);
         printf("chna: numUIDs=%d\n", b->numUIDs);
+        //
         for (i = 0; i < b->numUIDs; i++)
         {
             SF_CHNA_TRACK *chna_track;
@@ -194,7 +195,7 @@ bw64_open (SF_PRIVATE *psf)
     }
 
     // This is just printing out chna contents for debugging
-    /*{
+    {
         SF_AXML_INFO_16K *b ;
         int i;
 
@@ -304,7 +305,7 @@ bw64_read_header (SF_PRIVATE *psf, int *blockalign, int *framesperblock)
 
                     psf_log_printf (psf, "  Frames    : %D\n", frame_count) ;
                     psf_log_printf (psf, "  Table length : %u\n", table_len) ; //number of valid entries in array 'table'
-
+//should there be a dummy parameter = 0 here?
                 } ;
                 parsestage |= HAVE_ds64 ;
                 break ;
