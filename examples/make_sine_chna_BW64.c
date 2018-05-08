@@ -42,7 +42,7 @@
 #endif
 
 #define		SAMPLE_RATE			48000
-#define		SAMPLE_COUNT		(SAMPLE_RATE * 15000)	/* 4 seconds */
+#define		SAMPLE_COUNT		(SAMPLE_RATE * 15000)	/* 15000 seconds, creates > 4gb file */
 #define		AMPLITUDE			(1.0 * 0x7F000000)
 #define		LEFT_FREQ			(344.0 / SAMPLE_RATE)
 #define		RIGHT_FREQ			(466.0 / SAMPLE_RATE)
