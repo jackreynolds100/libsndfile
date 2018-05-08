@@ -1353,7 +1353,7 @@ wavlike_write_chna_chunk (SF_PRIVATE *psf)
          return -1 ;
 
      b = psf->chna_fixed ;
-
+printf("->numTracks d\n", b->numTracks);
  		psf_binheader_writef (psf, "b", BHWv (&(b->numTracks)), BHWz (sizeof (b->numTracks))) ;
  		psf_binheader_writef (psf, "b", BHWv (&(b->numUIDs)), BHWz (sizeof (b->numUIDs))) ;
  		psf_binheader_writef (psf, "b", BHWv (&(b->audioID)), BHWz (sizeof (b->audioID))) ;
@@ -1394,9 +1394,9 @@ wavlike_read_axml_chunk (SF_PRIVATE *psf, uint32_t chunksize)
         return psf->error ;
     } ;
 
-
+  	b = psf->axml_16k ;
 		b->ckSize = chunksize;
-    b = psf->axml_16k ;
+  
     bytes += psf_binheader_readf (psf, "b", b->xmlData, chunksize - 8) ;
 
     return 0 ;

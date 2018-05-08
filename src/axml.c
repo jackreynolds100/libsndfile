@@ -48,11 +48,12 @@ int axml_var_set (SF_PRIVATE *psf, const SF_AXML_INFO * data, size_t datasize)
 	} ;
 
 	if (psf->axml_16k == NULL)
-	{	if ((psf->axml_16k = axml_var_alloc ()) == NULL)
+	{	if ((psf->axml_16k = axml_var_alloc ()) == NULL) //PROBLEM HERE!!!!?
 		{	psf->error = SFE_MALLOC_FAILED ;
 			return SF_FALSE ;
 		} ;
 	}
+	return SF_TRUE ;
 }
 
 

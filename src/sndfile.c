@@ -354,14 +354,19 @@ sf_open	(const char *path, int mode, SF_INFO *sfinfo)
 	else
 		psf->error = psf_fopen (psf) ;
 
-  printf("sf_open: file=%s\n", path);
+  printf("sf_open: file=%s\n", path);       //THIS IS PRINTING THE FILENAME
 
 	return psf_open_file (psf, sfinfo) ;
+
+
+
 } /* sf_open */
 
 SNDFILE*
 sf_open_fd	(int fd, int mode, SF_INFO *sfinfo, int close_desc)
 {	SF_PRIVATE 	*psf ;
+
+	printf("sf_open_fd=\n");       //THIS IS NOT PRINTING*********
 
 	if ((SF_CONTAINER (sfinfo->format)) == SF_FORMAT_SD2)
 	{	sf_errno = SFE_SD2_FD_DISALLOWED ;
@@ -385,6 +390,8 @@ sf_open_fd	(int fd, int mode, SF_INFO *sfinfo, int close_desc)
 		psf->file.do_not_close_descriptor = SF_TRUE ;
 
 	return psf_open_file (psf, sfinfo) ;
+
+
 } /* sf_open_fd */
 
 SNDFILE*
@@ -2985,10 +2992,14 @@ psf_open_file (SF_PRIVATE *psf, SF_INFO *sfinfo)
 		goto error_exit ;
 		} ;
 
+printf("psf_open_file %d\n" , psf->file.mode);
+
 	if (sfinfo == NULL)
 	{	error = SFE_BAD_SF_INFO_PTR ;
 		goto error_exit ;
 		} ;
+
+printf("here!\n");
 
 	if (psf->file.mode == SFM_READ)
 	{	if ((SF_CONTAINER (sfinfo->format)) == SF_FORMAT_RAW)
@@ -3002,7 +3013,7 @@ psf_open_file (SF_PRIVATE *psf, SF_INFO *sfinfo)
 		} ;
 
 	memcpy (&psf->sf, sfinfo, sizeof (SF_INFO)) ;
-
+printf("here!\n");
 	psf->Magick 		= SNDFILE_MAGICK ;
 	psf->norm_float 	= SF_TRUE ;
 	psf->norm_double	= SF_TRUE ;
@@ -3033,7 +3044,7 @@ psf_open_file (SF_PRIVATE *psf, SF_INFO *sfinfo)
 		/* File is open, so get the length. */
 		psf->filelength = psf_get_filelen (psf) ;
 		} ;
-
+printf("here!\n");
 	if (psf->fileoffset > 0)
 	{	switch (psf->file.mode)
 		{	case SFM_READ :
@@ -3063,7 +3074,7 @@ psf_open_file (SF_PRIVATE *psf, SF_INFO *sfinfo)
 	else
 		psf_log_printf (psf, "Length : %D\n", psf->filelength) ;
 
-
+printf("here!\n");
 	if (psf->file.mode == SFM_WRITE || (psf->file.mode == SFM_RDWR && psf->filelength == 0))
 	{	/* If the file is being opened for write or RDWR and the file is currently
 		** empty, then the SF_INFO struct must contain valid data.
@@ -3092,7 +3103,7 @@ psf_open_file (SF_PRIVATE *psf, SF_INFO *sfinfo)
 			psf->sf.format = format_from_extension (psf) ;
 		} ;
 
-
+printf("here!\n");
 	/* Prevent unnecessary seeks */
 	psf->last_op = psf->file.mode ;
 
@@ -3126,7 +3137,7 @@ psf_open_file (SF_PRIVATE *psf, SF_INFO *sfinfo)
 		} ;
 
   //printf("SF_CONTAINER: format=%x\n", psf->sf.format);
-
+printf("here!4\n");
 	/* Call the initialisation function for the relevant file type. */
 	switch (SF_CONTAINER (psf->sf.format))
 	{	case	SF_FORMAT_WAV :
@@ -3273,7 +3284,7 @@ psf_open_file (SF_PRIVATE *psf, SF_INFO *sfinfo)
 				goto error_exit ;
 			} ;
 		} ;
-
+printf("here!6\n");
 	if (psf->fileoffset > 0)
 		psf_log_printf (psf, "Embedded file length : %D\n", psf->filelength) ;
 
@@ -3294,14 +3305,14 @@ psf_open_file (SF_PRIVATE *psf, SF_INFO *sfinfo)
 		error = SFE_INTERNAL ;
 		goto error_exit ;
 		} ;
-
+printf("here!7\n");
 	psf->read_current = 0 ;
 	psf->write_current = 0 ;
 	if (psf->file.mode == SFM_RDWR)
 	{	psf->write_current = psf->sf.frames ;
 		psf->have_written = psf->sf.frames > 0 ? SF_TRUE : SF_FALSE ;
 		} ;
-
+printf("here!8\n");
 	memcpy (sfinfo, &psf->sf, sizeof (SF_INFO)) ;
 
 	if (psf->file.mode == SFM_WRITE)
@@ -3335,7 +3346,7 @@ error_exit :
 				error = SF_ERR_MALFORMED_FILE ;
 				} ;
 		} ;
-
+printf("here!9\n");
 	psf_close (psf) ;
 	return NULL ;
 } /* psf_open_file */

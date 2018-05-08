@@ -91,11 +91,14 @@ bw64_open (SF_PRIVATE *psf)
     int    subformat, error = 0 ;
     int blockalign, framesperblock ;
 
+      printf("here!bw64_open_bw64\n");
+
     if ((wpriv = calloc (1, sizeof (WAVLIKE_PRIVATE))) == NULL)
         return SFE_MALLOC_FAILED ;
     psf->container_data = wpriv ;
     /*wpriv->wavex_ambisonic = SF_AMBISONIC_NONE ;*/
 
+printf("here!bw64_open_bw64_1\n");
     /* All BW64 files are little endian. */
     psf->endian = SF_ENDIAN_LITTLE ;
 
@@ -109,6 +112,8 @@ bw64_open (SF_PRIVATE *psf)
         psf->get_chunk_size = bw64_get_chunk_size ;
         psf->get_chunk_data = bw64_get_chunk_data ;
     } ;
+
+printf("here!bw64_open_bw64_2\n");
 
     if ((psf->sf.format & SF_FORMAT_TYPEMASK) != SF_FORMAT_BW64)
         return    SFE_BAD_OPEN_FORMAT ;
@@ -127,6 +132,7 @@ bw64_open (SF_PRIVATE *psf)
         psf->write_header = bw64_write_header ;
         psf->set_chunk = bw64_set_chunk ;
     } ;
+printf("here!bw64_open_bw64_3\n");
 
     psf->container_close = bw64_close ;
     psf->command = bw64_command ;
@@ -162,24 +168,28 @@ bw64_open (SF_PRIVATE *psf)
             return SFE_UNIMPLEMENTED ;
     } ;
 
+printf("here!bw64_open_bw64_4\n");
+
+  //  if (psf->file.mode == SFM_READ)
+  //  {
+  //      SF_CHNA_INFO_FIXED *b ;
+  //      int i, j;
+
+printf("here!bw64_open_bw64_5\n");
+
+  //      b = psf->chna_fixed ;
+
+      //  ("chna: ckSize=%d\n", b->ckSize);
+      // printf("chna: numTracks=%d\n", b->numTracks);
+      //  printf("chna: numUIDs=%d\n", b->numUIDs);
 
 
-    if (psf->file.mode == SFM_READ)
-    {
-        SF_CHNA_INFO_FIXED *b ;
-        int i, j;
 
-        b = psf->chna_fixed ;
-
-        printf("chna: ckSize=%d\n", b->ckSize);
-        printf("chna: numTracks=%d\n", b->numTracks);
-        printf("chna: numUIDs=%d\n", b->numUIDs);
-        //
-        for (i = 0; i < b->numUIDs; i++)
+/*for (i = 0; i < b->numUIDs; i++)
         {
-            SF_CHNA_TRACK *chna_track;
+           SF_CHNA_TRACK *chna_track;
             chna_track = &(b->audioID[i]);
-            printf("chna: [%d] trackIndex=%d\n", i, chna_track->trackIndex);
+           printf("chna: [%d] trackIndex=%d\n", i, chna_track->trackIndex);
             printf("chna: [%d] UID=", i);
             for (j = 0; j < 12; j++) printf("%c", chna_track->UID[j]);
             printf("\n");
@@ -190,24 +200,25 @@ bw64_open (SF_PRIVATE *psf)
             for (j = 0; j < 11; j++) printf("%c", chna_track->packRef[j]);
             printf("\n");
 
-            printf("chna_fixed: mode=%x\n", psf->file.mode);
-        }
-    }
-
+            printf("chna_fixed: mode=%x\n", psf->file.mode);*/
+        //}
+    //}
     // This is just printing out chna contents for debugging
+
+printf("here!bw64_open_bw64_6\n");
+
     {
         SF_AXML_INFO_16K *b ;
         int i;
-
         b = psf->axml_16k;
 
-        printf("axml: ckSize=%d\n", b->ckSize);
+        /*printf("axml: ckSize=%d\n", b->ckSize);
         for (i = 0; i < (int)b->ckSize - 8; i++)
         {
             printf("%c", b->xmlData[i]);
         }
-        printf("\n");
-    }*/
+        printf("\n");*/
+    }
 
     return error ;
 } /* BW64_open */
