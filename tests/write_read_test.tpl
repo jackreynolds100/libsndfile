@@ -84,6 +84,7 @@ main (int argc, char **argv)
 		printf ("           flac  - test FLAC file functions\n") ;
 		printf ("           mpc2k - test MPC 2000 file functions\n") ;
 		printf ("           rf64  - test RF64 file functions\n") ;
+		printf ("           bw64  - test BW64 file functions\n") ;
 		printf ("           all   - perform all tests\n") ;
 		exit (1) ;
 		} ;
@@ -390,6 +391,23 @@ main (int argc, char **argv)
 		empty_file_test ("empty_char.rf64", SF_FORMAT_RF64 | SF_FORMAT_PCM_U8) ;
 		empty_file_test ("empty_short.rf64", SF_FORMAT_RF64 | SF_FORMAT_PCM_16) ;
 		empty_file_test ("empty_float.rf64", SF_FORMAT_RF64 | SF_FORMAT_FLOAT) ;
+		/* Lite remove end */
+
+		test_count++ ;
+		} ;
+
+	if (do_all || ! strcmp (argv [1], "bw64"))
+	{	pcm_test_char	("char.bw64"	, SF_FORMAT_BW64 | SF_FORMAT_PCM_U8, SF_FALSE) ;
+		pcm_test_short	("short.bw64"	, SF_FORMAT_BW64 | SF_FORMAT_PCM_16, SF_FALSE) ;
+		pcm_test_24bit	("24bit.bw64"	, SF_FORMAT_BW64 | SF_FORMAT_PCM_24, SF_FALSE) ;
+		pcm_test_int	("int.bw64"		, SF_FORMAT_BW64 | SF_FORMAT_PCM_32, SF_FALSE) ;
+
+		/* Lite remove start */
+		pcm_test_float	("float.bw64"	, SF_FORMAT_BW64 | SF_FORMAT_FLOAT , SF_FALSE) ;
+		pcm_test_double	("double.bw64"	, SF_FORMAT_BW64 | SF_FORMAT_DOUBLE, SF_FALSE) ;
+		empty_file_test ("empty_char.bw64", SF_FORMAT_BW64 | SF_FORMAT_PCM_U8) ;
+		empty_file_test ("empty_short.bw64", SF_FORMAT_BW64 | SF_FORMAT_PCM_16) ;
+		empty_file_test ("empty_float.bw64", SF_FORMAT_BW64 | SF_FORMAT_FLOAT) ;
 		/* Lite remove end */
 
 		test_count++ ;
@@ -1200,5 +1218,3 @@ write_seek_extend_test (const char * filename, int format)
 
 	return ;
 } /* write_seek_extend_test */
-
-

@@ -120,6 +120,7 @@ static SF_FORMAT_INFO const major_formats [] =
 	{	SF_FORMAT_AIFF,		"AIFF (Apple/SGI)",						"aiff" 	},
 	{	SF_FORMAT_AU,		"AU (Sun/NeXT)", 						"au"	},
 	{	SF_FORMAT_AVR,		"AVR (Audio Visual Research)",			"avr"	},
+	{	SF_FORMAT_BW64,		"BW64 (Broadcast WAV 64)",				"bw64"	},
 	{	SF_FORMAT_CAF,		"CAF (Apple Core Audio File)",			"caf"	},
 #if HAVE_EXTERNAL_XIPH_LIBS
 	{	SF_FORMAT_FLAC,		"FLAC (Free Lossless Audio Codec)",		"flac"	},
@@ -136,7 +137,6 @@ static SF_FORMAT_INFO const major_formats [] =
 	{	SF_FORMAT_PVF,		"PVF (Portable Voice Format)",			"pvf"	},
 	{	SF_FORMAT_RAW,		"RAW (header-less)",					"raw"	},
 	{	SF_FORMAT_RF64,		"RF64 (RIFF 64)",						"rf64"	},
-	{	SF_FORMAT_BW64,		"BW64 (Broadcast WAV 64)",				"bw64"	},
 	{	SF_FORMAT_SD2,		"SD2 (Sound Designer II)", 				"sd2"	},
 	{	SF_FORMAT_SDS,		"SDS (Midi Sample Dump Standard)", 		"sds"	},
 	{	SF_FORMAT_IRCAM,	"SF (Berkeley/IRCAM/CARL)",				"sf"	},

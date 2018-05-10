@@ -71,7 +71,7 @@ enum
 	SF_FORMAT_OGG			= 0x200000,		/* Xiph OGG container */
 	SF_FORMAT_MPC2K			= 0x210000,		/* Akai MPC 2000 sampler */
 	SF_FORMAT_RF64			= 0x220000,		/* RF64 WAV file */
-  SF_FORMAT_BW64			= 0x230000,   /* BW64 WAV file */
+	SF_FORMAT_BW64			= 0x230000,		/* BW64 WAV file */
 	/* Subtypes from here on. */
 
 	SF_FORMAT_PCM_S8		= 0x0001,		/* Signed 8 bit data */
@@ -192,12 +192,6 @@ enum
 	SFC_GET_BROADCAST_INFO			= 0x10F0,
 	SFC_SET_BROADCAST_INFO			= 0x10F1,
 
-	SFC_GET_CHNA_INFO						= 0x10F4,
-	SFC_SET_CHNA_INFO						= 0x10F5,
-
-	SFC_GET_AXML_INFO						= 0x10FA,
-	SFC_SET_AXML_INFO						= 0x10FB,
-
 	SFC_GET_CHANNEL_MAP_INFO		= 0x1100,
 	SFC_SET_CHANNEL_MAP_INFO		= 0x1101,
 
@@ -221,6 +215,14 @@ enum
 	/* Cart Chunk support */
 	SFC_SET_CART_INFO				= 0x1400,
 	SFC_GET_CART_INFO				= 0x1401,
+
+	/* chna chunk support */
+	SFC_GET_CHNA_INFO				= 0x1500,
+	SFC_SET_CHNA_INFO				= 0x1501,
+
+	/* axml chunk support */
+	SFC_GET_AXML_INFO				= 0x1601,
+	SFC_SET_AXML_INFO				= 0x1602,
 
 	/* Following commands for testing only. */
 	SFC_TEST_IEEE_FLOAT_REPLACE		= 0x6001,
@@ -507,11 +509,10 @@ typedef struct
 /* SF_BROADCAST_INFO is the above struct with coding_history field of 256 bytes. */
 typedef SF_BROADCAST_INFO_VAR (256) SF_BROADCAST_INFO ;
 
-/*below entries taken from BS.2088*/
+/* CHNA chunk structure taken from ITU-R BS.2088 */
 
 typedef struct
-{
-	uint16_t 		trackIndex;
+{	uint16_t 	trackIndex ;
 	char 		UID [12] ;
 	char 		trackRef [14] ;
 	char 		packRef [11] ;
@@ -520,23 +521,12 @@ typedef struct
 
 #define SF_CHNA_INFO_VAR(audioID_size) \
 			struct \
-			{ char   	ckID	[4] ; \
-				uint32_t 		ckSize ; \
-				uint16_t 		numTracks ; \
+			{	uint16_t 		numTracks ; \
 				uint16_t 		numUIDs ; \
-				SF_CHNA_TRACK 		audioID	[audioID_size] ; \
+				SF_CHNA_TRACK 	audioID	[audioID_size] ; \
 			}
-typedef SF_CHNA_INFO_VAR (256) SF_CHNA_INFO ;
+typedef SF_CHNA_INFO_VAR (1024) SF_CHNA_INFO ;  /* 1024 might be on the small side, would rather have it dynamic */
 
-
-#define SF_AXML_INFO_VAR(xmlData_size) \
-	struct \
- 			{ char   	ckID	[4] ; \
-			  uint32_t ckSize ; \
-				char 		xmlData	[xmlData_size] ; \
-			}
-
-typedef SF_AXML_INFO_VAR (256) SF_AXML_INFO ;
 
 struct SF_CART_TIMER
 {	char	usage [4] ;

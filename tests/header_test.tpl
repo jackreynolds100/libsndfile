@@ -167,6 +167,15 @@ main (int argc, char *argv [])
 		test_count++ ;
 		} ;
 
+	if (do_all || ! strcmp (argv [1], "bw64"))
+	{	update_header_test ("header.bw64", SF_FORMAT_BW64) ;
+		update_seek_short_test ("header_short.bw64", SF_FORMAT_BW64) ;
+		update_seek_int_test ("header_int.bw64", SF_FORMAT_BW64) ;
+		update_seek_float_test ("header_float.bw64", SF_FORMAT_BW64) ;
+		update_seek_double_test ("header_double.bw64", SF_FORMAT_BW64) ;
+		test_count++ ;
+		} ;
+
 	if (do_all || ! strcmp (argv [1], "mat4"))
 	{	update_header_test ("header.mat4", SF_FORMAT_MAT4) ;
 		update_seek_short_test ("header_short.mat4", SF_FORMAT_MAT4) ;

@@ -25,50 +25,60 @@
 
 #include "common.h"
 
-/* i'm not sure if axml.c is necessary. it seems braodcast.c handles the coding
-** history size, which may not be necessary for BW64
-*/
+#define SF_AXML_MAX_SIZE  0xFFFFFFFF
 
-SF_AXML_INFO_16K*
-axml_var_alloc (void)
+char*
+axml_var_alloc (int len)
 {
-	return calloc (1, sizeof (SF_AXML_INFO_16K)) ;
+	return calloc (len, sizeof (char)) ;
 } /* amxl_var_alloc */
 
 
-int axml_var_set (SF_PRIVATE *psf, const SF_AXML_INFO * data, size_t datasize)
-{	size_t len ;
-
-	if (data == NULL)
+int
+axml_var_set (SF_PRIVATE *psf, const char * data, size_t datasize)
+{	if (data == NULL)
 		return SF_FALSE ;
 
-	if (datasize >= sizeof (SF_AXML_INFO_16K))
+	if (datasize >= SF_AXML_MAX_SIZE)
 	{	psf->error = SFE_BAD_AXML_INFO_TOO_BIG ;
 		return SF_FALSE ;
-	} ;
+		} ;
 
-	if (psf->axml_16k == NULL)
-	{	if ((psf->axml_16k = axml_var_alloc ()) == NULL) //PROBLEM HERE!!!!?
+	psf->axml_len = datasize ;
+
+	/* Check for odd length data, and a add padding byte to make it even length */
+	if ((psf->axml_len % 2) == 1)
+	{	psf->axml_len += 1 ;
+		} ;
+
+	if (psf->axml_var == NULL)
+	{	if ((psf->axml_var = axml_var_alloc (psf->axml_len)) == NULL)
 		{	psf->error = SFE_MALLOC_FAILED ;
 			return SF_FALSE ;
+			} ;
 		} ;
-	}
+
+	memcpy (psf->axml_var, data, datasize) ;
+
+	/* Add the padding char for the odd length data */
+	if (datasize < psf->axml_len)
+	{	psf->axml_var[datasize] = ' ' ;
+		} ;
+
 	return SF_TRUE ;
-}
+} /* axml_var_set */
 
 
-int axml_var_get (SF_PRIVATE *psf, SF_AXML_INFO * data, size_t datasize)
+int
+axml_var_get (SF_PRIVATE *psf, char * data, size_t datasize)
 {	size_t size ;
 
-	printf("axml_var_get: %d\n", datasize);
-
-	if (psf->axml_16k == NULL)
+	if (psf->axml_var == NULL)
 		return SF_FALSE ;
 
 	size = datasize ;
 
-	memcpy (data, psf->axml_16k, size) ;
+	memcpy (data, psf->axml_var, size) ;
 
 	return SF_TRUE ;
-}
-/* axml_var_get */
+} /* axml_var_get */

@@ -53,6 +53,7 @@ main (int argc, char *argv [])
 		printf ("           aiff - test adding chunks to AIFF files\n") ;
 		printf ("           caf  - test adding chunks to CAF files\n") ;
 		printf ("           rf64 - test adding chunks to RF64 files\n") ;
+		printf ("           bw64 - test adding chunks to BW64 files\n") ;
 		printf ("           all  - perform all tests\n") ;
 		exit (1) ;
 		} ;
@@ -85,6 +86,11 @@ main (int argc, char *argv [])
 
 	if (do_all || ! strcmp (argv [1], "rf64"))
 	{	chunk_test ("chunks_pcm16.rf64", SF_FORMAT_RF64 | SF_FORMAT_PCM_16) ;
+		test_count++ ;
+		} ;
+
+	if (do_all || ! strcmp (argv [1], "bw64"))
+	{	chunk_test ("chunks_pcm16.bw64", SF_FORMAT_BW64 | SF_FORMAT_PCM_16) ;
 		test_count++ ;
 		} ;
 

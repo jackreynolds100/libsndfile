@@ -30,15 +30,21 @@
 #include <sndfile.h>
 
 #define	BUFFER_SIZE		(1024)
+#define	CHNA_SIZE		(60000)
+#define	AXML_SIZE		(60000)
 
 
 static short buffer [BUFFER_SIZE] ;
 
 int
 main (int argc, char *argv [])
-{	SNDFILE	*file ;
+{
+	SNDFILE	*file ;
 	SF_INFO sfinfo ;
-	int		k, count, max = 0, total = 0 ;
+	int i, k, count, max = 0, total = 0 ;
+	char *axml_data ;
+	SF_CHNA_INFO chna_info ;
+
 
 	if (argc < 2)
 	{	printf ("Expecting input file name.\n") ;
@@ -51,6 +57,28 @@ main (int argc, char *argv [])
 		exit (1) ;
 		} ;
 
+    /* Read chna chunk */
+	sf_command(file, SFC_GET_CHNA_INFO, (void *)&chna_info, sizeof(SF_CHNA_INFO)) ;
+	printf("chna numTracks = %u\n", chna_info.numTracks) ;
+	printf("chna numUIDs = %u\n", chna_info.numUIDs) ;
+	for (k = 0; k < chna_info.numUIDs; k++)
+	{
+		printf("chna %d: %d\t", k, chna_info.audioID[k].trackIndex);
+		for (i = 0; i < 12; i++)   printf("%c", chna_info.audioID[k].UID[i]) ;
+		printf("\t");
+		for (i = 0; i < 14; i++)   printf("%c", chna_info.audioID[k].trackRef[i]) ;
+		printf("\t");
+		for (i = 0; i < 11; i++)   printf("%c", chna_info.audioID[k].packRef[i]) ;
+		printf("\n");
+		} ;
+
+ 	/* Read axml chunk */
+	axml_data = (char *)malloc(sizeof(char) * AXML_SIZE);
+	sf_command(file, SFC_GET_AXML_INFO, (void *)axml_data, AXML_SIZE);
+	printf("axml data:\n");
+	printf("%s\n", axml_data);
+
+	/* Read samples */
 	while ((count = sf_read_short (file, buffer, BUFFER_SIZE)))
 	{	for (k = 0 ; k < count ; k++)
 			if (abs (buffer [k]) > max)
@@ -58,10 +86,12 @@ main (int argc, char *argv [])
 		total += count ;
 		} ;
 
-	printf ("Total         : %d\n", total) ;
-	printf ("Maximun value : %d\n", max) ;
+	printf ("Total samples : %d\n", total) ;
+	printf ("Maximum value : %d\n", max) ;
 
 	sf_close (file) ;
+
+	free(axml_data);
 
 	return 0 ;
 } /* main */

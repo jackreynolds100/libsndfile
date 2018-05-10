@@ -34,12 +34,10 @@ chna_var_alloc (void)
 
 int
 chna_var_set (SF_PRIVATE *psf, const SF_CHNA_INFO * info, size_t datasize)
-{
-
-	if (info == NULL)
+{	if (info == NULL)
 		return SF_FALSE ;
 
-	if (datasize >= sizeof (SF_CHNA_INFO_FIXED))
+	if (datasize > sizeof (SF_CHNA_INFO_FIXED))
 	{	psf->error = SFE_BAD_CHNA_INFO_TOO_BIG ;
 		return SF_FALSE ;
 		} ;
@@ -51,6 +49,8 @@ chna_var_set (SF_PRIVATE *psf, const SF_CHNA_INFO * info, size_t datasize)
 			} ;
 		} ;
 
+	memcpy (psf->chna_fixed, info, datasize) ;
+
 	return SF_TRUE ;
 } /* chna_var_set */
 
@@ -59,7 +59,6 @@ int
 chna_var_get (SF_PRIVATE *psf, SF_CHNA_INFO * data, size_t datasize)
 {	size_t size ;
 
-  printf("chna_var_get: %d\n", (int)datasize);
 	if (psf->chna_fixed == NULL)
 		return SF_FALSE ;
 

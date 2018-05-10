@@ -188,4 +188,3 @@ gen_coding_history (char * added_history, int added_history_max, const SF_INFO *
 
 	return count ;
 } /* gen_coding_history */
-
