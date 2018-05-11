@@ -111,6 +111,9 @@ enum
 	SF_FORMAT_ALAC_24		= 0x0072,		/* Apple Lossless Audio Codec (24 bit). */
 	SF_FORMAT_ALAC_32		= 0x0073,		/* Apple Lossless Audio Codec (32 bit). */
 
+	SF_FORMAT_PACKFORMAT_HOA  = 0x0074, /* ADM audioPackFormat 0004 higher order ambisonics. */
+	SF_FORMAT_PACKFORMAT_DIRECT_SPEAKERS  = 0x0075, /* ADM audioPackformat Direct Speakers. */
+
 	/* Endian-ness options. */
 
 	SF_ENDIAN_FILE			= 0x00000000,	/* Default file endian-ness. */

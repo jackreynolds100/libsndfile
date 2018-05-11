@@ -45,9 +45,11 @@ BEGIN
     COMBOBOX        IDC_ENCODING,41,19,109,98,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     COMBOBOX        IDC_FORMAT,41,3,109,98,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     COMBOBOX        IDC_BYTEORDER,41,34,109,90,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_PACKFORMAT,41,50,109,90,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     LTEXT           "Format:",IDC_FORMAT_TEXT,0,5,24,8
     LTEXT           "Encoding:",IDC_ENCODING_TEXT,0,21,32,8
     LTEXT           "Byte Order:",IDC_BYTEORDER_TEXT,0,36,39,8
+    LTEXT           "Pack Format:",IDC_PACKFORMAT_TEXT,0,49,39,8
     LTEXT           "VBR/Flac Quality (0.0-1.0):",IDC_VBR_LABEL,168,26,88,8
     CONTROL         "",IDC_VBR_SLIDER,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,162,34,121,15
     LTEXT           "Static",IDC_VBR_VAL,259,27,19,8
@@ -70,18 +72,18 @@ END
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE 
+1 TEXTINCLUDE
 BEGIN
     "resource.h\0"
 END
 
-2 TEXTINCLUDE 
+2 TEXTINCLUDE
 BEGIN
     "#include ""afxres.h""\r\n"
     "\0"
 END
 
-3 TEXTINCLUDE 
+3 TEXTINCLUDE
 BEGIN
     "\r\n"
     "\0"
@@ -131,4 +133,3 @@ END
 
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED
-

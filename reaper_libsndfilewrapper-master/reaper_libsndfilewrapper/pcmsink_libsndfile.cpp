@@ -60,33 +60,33 @@ class PCM_sink_libsndfile : public PCM_sink
     PCM_sink_libsndfile(const char *fn, void *cfgdata, int cfgdata_l, int nch, int srate, bool buildpeaks)
     {
         m_outfile = 0;
-        
+
         m_peakbuild=0;
-        
+
 
         if (cfgdata_l >= 32 && *((int *)cfgdata) == SINK_FOURCC)
         {
             m_format = REAPER_MAKELEINT(((int *)(((unsigned char *)cfgdata)+4))[0]);
             m_vbr = ((float *)(((unsigned char *)cfgdata)+4))[1];
         }
-        
-        
+
+
         m_nch=nch;
         m_srate=srate;
         m_lensamples=0;
         m_filesize=0;
-        
-        
+
+
         SF_INFO		sfinfo;
-        
+
         memset (&sfinfo, 0, sizeof (sfinfo)) ;
-        
+
         sfinfo.samplerate	= m_srate ;
         sfinfo.channels		= m_nch;
         sfinfo.format		= m_format;
-        
+
         // printf("Chose format: 0x%08x \n", m_format);
-        
+
         // Check if the format is viable and get the extension
         if (!ptr_sf_format_check (&sfinfo))
         {
@@ -94,56 +94,56 @@ class PCM_sink_libsndfile : public PCM_sink
             /* it would be nice to have some kind of popup warning... */
             return;
         }
-        
-        
+
+
         // get the extension for the format
         SF_FORMAT_INFO	info ;
-        
+
         info.format = (m_format & SF_FORMAT_TYPEMASK);
-        
-        
+
+
         if (ptr_sf_command (NULL, SFC_GET_FORMAT_INFO, &info, sizeof (info)))
         {
             printf("can't get major format info: 0x%08x\n", info.format);
         }
-        
+
         // printf("Writing format: %s  ( %s ); 0x%08x\n", info.name, info.extension, info.format);
-        
+
         /*
         char fn_no_ext[strlen(fn) - 4];
         strncpy(fn_no_ext, fn, strlen(fn) - 4);
-        
+
         char buf[strlen(fn_no_ext) + strlen(info.extension)];
-        
+
         wsprintf(buf,"%s.%s", fn_no_ext, info.extension);
 
         printf("filename: %s\n", buf);
         */
-        
+
         m_fn.Set(fn); // the extension gets already set by reaper, hopefully correct...
-        
+
         m_format_string.Set(info.name);
-        
-        
+
+
         info.format = (m_format & SF_FORMAT_SUBMASK);
         if (ptr_sf_command (NULL, SFC_GET_FORMAT_INFO, &info, sizeof (info)))
         {
             printf("can't get subtype format info: 0x%08x\n", info.format);
         }
-        
+
         m_encoding_string.Set(info.name);
-        
-        
+
+
         /* OPEN THE FILE */
         m_outfile = ptr_sf_open(m_fn.Get(), SFM_WRITE, &sfinfo);
-        
+
         // set quality
         double q = (double)m_vbr;
-        
+
         ptr_sf_command (m_outfile, SFC_SET_COMPRESSION_LEVEL, &q, sizeof (double));
         ptr_sf_command (m_outfile, SFC_SET_VBR_ENCODING_QUALITY, &q, sizeof (double));
-        
-        
+
+
         if (buildpeaks)
         {
           m_peakbuild=PeakBuild_Create(NULL,fn,m_srate,m_nch);
@@ -153,7 +153,7 @@ class PCM_sink_libsndfile : public PCM_sink
 
     bool IsOpen()
     {
-      
+
       return m_outfile;
     }
 
@@ -163,7 +163,7 @@ class PCM_sink_libsndfile : public PCM_sink
         {
             ptr_sf_close(m_outfile);
         }
-      
+
         m_outfile = 0;
 
         delete m_peakbuild;
@@ -172,6 +172,65 @@ class PCM_sink_libsndfile : public PCM_sink
 
     const char *GetFileName() { return m_fn.Get(); }
     int GetNumChannels() { return m_nch; } // return number of channels
+
+    /*
+     //When BW64 is selected, a second drop-down menu will appear linked to audioPackFormat typeLabel,
+     //with ADM common definition options for Direct Speakers (typeLabel 0001),
+     //and HOA (higher order ambisonics) (typeLabel 0004)
+
+     //an if statement of some description needs to happen here (initially for HOA,
+     //defaults to SN3D ACN ambiX):
+
+     {
+     If audioPackFormat typeLabel is 0004 (HOA) and
+
+     If numChannels = 4, audioPackFormatID = AP_0004_0001
+     else
+     If numChannels = 9, audioPackFormatID = AP_0004_0002
+     else
+     If numChannels = 16, audioPackFormatID = AP_0004_0003
+     else
+     If numChannels = 25, audioPackFormatID = AP_0004_0004
+     else
+     if numChannels = 36, audioPackFormatID = AP_0004_0005
+     else
+     If numChannels = 49, audioPAckFormatID = AP_0004_0006
+     else
+     If numChannels = 64, audioPackFormatID = AP_0004_0007
+     }
+
+     //(7th order (64 channels) is the maximum numChannels Reaper can handle.)
+
+     //since there can be more than one loudspeaker layout with 8 channels (7.1 front, 7.1_back etc),
+     //the speaker layout options must be selected from a secondary drop-down menu with the following options,
+     //which link to their corresponding audioPackFormatID's:
+
+     'mono'                   = AP_0001_0001
+     'stereo'                 = AP_0001_0002
+     '3.0'                    = AP_0001_000a
+     '4.0'                    = AP_0001_000b
+     '5.0'                    = AP_0001_000c
+     '5.1'                    = AP_0001_0003
+     '6.1'                    = AP_0001_000d
+     '7.1 front'              = AP_0001_000e
+     '7.1 back'               = AP_0001_000f
+     '7.1 top (2+5+0)'        = AP_0001_0004
+     '7.1 side 5.1+screen'    = AP_0001_0012
+     '7.1 topside (5.1.2)'    = AP_0001_0013
+     '9.1 screen (5.1.2+scr)' = AP_0001_0014
+     '9.1 (7.1.2)'            = AP_0001_0016
+     '9.1 (5.1.4)'            = AP_0001_0005
+     '10.1'                   = AP_0001_0006
+     '10.2'                   = AP_0001_0007
+     '11.1 (5.1.4)'           = AP_0001_0015
+     '11.1 (7.1.4)'           = AP_0001_0017
+     '13.1'                   = AP_0001_0008
+     '22.2'                   = AP_0001_0009
+     'Auro-3D'                = AP_0001_0011
+
+     */
+
+
     double GetLength() { return m_lensamples / (double) m_srate; } // length in seconds, so far
     INT64 GetFileSize()
     {
@@ -202,13 +261,13 @@ class PCM_sink_libsndfile : public PCM_sink
         // printf("i am writing %d samples, my samples are %d, spacing %d, offset %d \n", len, sizeof(ReaSample), spacing, offset);
       if (m_peakbuild)
         m_peakbuild->ProcessSamples(samples,len,nch,offset,spacing);
-        
+
         /* luckily libsndfile treats interleaved buffers the same way as reaper  s1_ch1 s1_ch2 s2_ch1 s2_ch2 ... */
         ptr_sf_write_double(m_outfile, samples[0], len*nch);
-        
-        
+
+
         /*  DO THE WRITING IN HERE!!!  */
-      
+
     }
 
     virtual int Extended(int call, void *parm1, void *parm2, void *parm3) override
@@ -217,48 +276,48 @@ class PCM_sink_libsndfile : public PCM_sink
 
 	  /* use this to retrieve cues (markers) !*/
       /* this does not work, probably not implemented */
-    
+
       if (call == PCM_SINK_EXT_ADDCUE)
       {
         // parm1=(REAPER_cue*)cue
         REAPER_cue* cue = (REAPER_cue*)parm1;
-      
+
         printf("cue %d: start: %f end: %f isregion: %d name: %s\n", cue->m_id, cue->m_time, cue->m_endtime, cue->m_isregion, cue->m_name);
-      
+
         return 1;
       }
-    
+
       return 0;
     }
 
 
  private:
-  
+
     SNDFILE     *m_outfile;
     SF_INFO		m_sfinfo;
-  
+
     int m_format; // this is the configured libsndfile format
     float m_vbr; // this is the quality for ogg
-    
+
     WDL_String m_format_string;
     WDL_String m_encoding_string;
-    
+
     int m_bitrate;
     int m_vbrq, m_abr, m_vbrmax, m_quality, m_stereomode, m_vbrmethod;
-    
-    
+
+
     WDL_TypedBuf<float> m_inbuf;
     int m_nch,m_srate;
     INT64 m_filesize;
     INT64 m_lensamples;
     WDL_String m_fn;
-    
+
     REAPER_PeakBuild_Interface *m_peakbuild;
 };
 
 static unsigned int GetFmt(const char **desc)
 {
-  if (desc) *desc="libsndfile (.au .avr .caf .htk .iff .mat .mpc .paf .pcm .pvf .sd2 ...)";
+  if (desc) *desc="libsndfile";
   return SINK_FOURCC;
 }
 
@@ -266,33 +325,33 @@ static unsigned int GetFmt(const char **desc)
 static const char *GetExtension(const void *cfg, int cfg_l)
 {
     //printf("queried extesion...\n");
-    
+
     // the extension will be set regarding the selected format!
     if (cfg_l <= 4 && *((int *)cfg) == SINK_FOURCC)
         return "var";
-  
+
     if (cfg_l>=8 && ((int*)cfg)[0] == SINK_FOURCC)
     {
         int format = REAPER_MAKELEINT(((int *)(((unsigned char*)cfg)+4))[0]);
         // printf("got format: 0x%08x and getting extension...", format);
-        
+
         // get the extension for the format
         SF_FORMAT_INFO	info ;
-        
+
         info.format = (format & SF_FORMAT_TYPEMASK);
-        
-        
+
+
         if (ptr_sf_command (NULL, SFC_GET_FORMAT_INFO, &info, sizeof (info)))
         {
             printf("can't get major format info: 0x%08x\n", info.format);
-            
+
             return "var";
         }
-        
+
         return info.extension;
-        
+
     }
-    
+
     return NULL;
 }
 
@@ -305,7 +364,7 @@ static int ExtendedSinkInfo(int call, void* parm1, void* parm2, void* parm3)
     /* we support cues... */
     return 1;
   }
-  
+
   return 0;
 }
 
@@ -314,12 +373,12 @@ static int ExtendedSinkInfo(int call, void* parm1, void* parm2, void* parm3)
 static int LoadDefaultConfig(void **data, const char *desc)
 {
     // printf("LoadDefaultConfig\n");
-    
+
     static WDL_HeapBuf m_hb;
     const char *fn=get_ini_file();
     int l=GetPrivateProfileInt(desc,"default_size",0,fn);
     if (l<1) return 0;
-    
+
     if (GetPrivateProfileStruct(desc,"default",m_hb.Resize(l),l,fn))
     {
         *data = m_hb.Get();
@@ -330,29 +389,29 @@ static int LoadDefaultConfig(void **data, const char *desc)
 
 int SinkGetConfigSize() {
     // printf("SinkGetConfigSize\n");
-    
+
     return 8;
 }
 
 
 void SinkInitDialog(HWND hwndDlg, void *cfgdata, int cfgdata_l)
 {
-    
+
     // printf("SinkInitDialog\n");
-    
+
     int format = SF_DEFAULT_FORMAT;
-    
+
     if (cfgdata_l < 8 || *((int *)cfgdata) != SINK_FOURCC)
         cfgdata_l=LoadDefaultConfig(&cfgdata,"libsndfile sink defaults");
-    
+
     if (cfgdata_l>=8 && ((int*)cfgdata)[0] == SINK_FOURCC)
     {
         format = REAPER_MAKELEINT(((int *)(((unsigned char*)cfgdata)+4))[0]);
         printf("init settings: 0x%08x", format);
     }
-    
+
     // todo: show conifguration
-    
+
 }
 
 
@@ -360,13 +419,13 @@ void SinkInitDialog(HWND hwndDlg, void *cfgdata, int cfgdata_l)
 void SinkSaveState(HWND hwndDlg, void *_data)
 {
     printf("SinkSaveState\n");
-    
+
     // get the format selection
     int id = SendDlgItemMessage(hwndDlg, IDC_BYTEORDER, CB_GETCURSEL, 0, 0);
     int format = SendDlgItemMessage(hwndDlg, IDC_BYTEORDER, CB_GETITEMDATA, id, 0);
-    
+
     // todo: get state from dialog
-    
+
     ((int *)_data)[0] = SINK_FOURCC;
     ((int *)(((unsigned char *)_data)+4))[0]=REAPER_MAKELEINT(format);
 }
@@ -376,7 +435,7 @@ void SinkSaveState(HWND hwndDlg, void *_data)
 void SaveDefaultConfig(HWND hwndDlg)
 {
     printf("SaveDefaultConfig\n");
-    
+
     char data[1024];
     SinkSaveState(hwndDlg,data);
     int l=SinkGetConfigSize();
@@ -386,7 +445,7 @@ void SaveDefaultConfig(HWND hwndDlg)
     sprintf(buf,"%d",l);
     WritePrivateProfileString(desc,"default_size",buf,fn);
     WritePrivateProfileStruct(desc,"default",data,l,fn);
-    
+
 }
 
 /* add entry to major format selection */
@@ -405,6 +464,15 @@ static void SetEncodingStr(HWND hwndDlg, const char* txt, int idx)
     SendDlgItemMessage(hwndDlg, IDC_ENCODING, CB_SETITEMDATA, n, idx);
 }
 
+/* add entry to dropdown box for PackFormat */
+static void SetAudioPackFormatStr(HWND hwndDlg, const char* txt, int idx)
+{
+    int n = SendDlgItemMessage(hwndDlg, IDC_PACKFORMAT, CB_GETCOUNT, 0, 0);
+    SendDlgItemMessage(hwndDlg, IDC_PACKFORMAT, CB_ADDSTRING, n, (LPARAM)txt);
+    SendDlgItemMessage(hwndDlg, IDC_PACKFORMAT, CB_SETITEMDATA, n, idx);
+}
+
+
 /* add entry to dropdown box for byte order*/
 static void SetByteorderStr(HWND hwndDlg, const char* txt, int idx)
 {
@@ -413,140 +481,209 @@ static void SetByteorderStr(HWND hwndDlg, const char* txt, int idx)
     SendDlgItemMessage(hwndDlg, IDC_BYTEORDER, CB_SETITEMDATA, n, idx);
 }
 
-/* update byte order dropdown */
-static void updateByteOrder(HWND hwndDlg, int wanted_format)
+/* update pack format dropdown */
+
+static void updateBlockFormat(HWND hwndDlg, int wanted_format)
 {
-    
-    /* First delete all entries */
-    SendDlgItemMessage(hwndDlg, IDC_BYTEORDER, CB_RESETCONTENT, 0, 0);
-    
+
+    // First delete all entries
+    SendDlgItemMessage(hwndDlg, IDC_PACKFORMAT, CB_RESETCONTENT, 0, 0);
+
     SF_INFO 		sfinfo ;
-    
+
     memset (&sfinfo, 0, sizeof (sfinfo)) ;
     sfinfo.channels = 1 ;
-    
+
     int s_id = SendDlgItemMessage(hwndDlg, IDC_ENCODING, CB_GETCURSEL, 0, 0);
     int format = SendDlgItemMessage(hwndDlg, IDC_ENCODING, CB_GETITEMDATA, s_id, 0);
-    
-    /* sanity check... */
+
+    // sanity check
     sfinfo.format = format;
-    
+
     if (!ptr_sf_format_check (&sfinfo))
     {
         printf("Something might have gone wrong... Format not available: %06x \n", format);
     }
-    
-    
+
+
+    //Default pack format HOA.
+    sfinfo.format = format | SF_FORMAT_PACKFORMAT_HOA;
+    if (ptr_sf_format_check (&sfinfo))
+    {
+        //printf ("Default Packformat HOA available \n");
+
+        SetAudioPackFormatStr(hwndDlg, "ADM Ambisonics", sfinfo.format);
+    }
+
+    // Force direct speakers
+    sfinfo.format = format | SF_FORMAT_PACKFORMAT_DIRECT_SPEAKERS;
+    if (ptr_sf_format_check (&sfinfo))
+    {
+        //printf ("Direct Speakers available \n");
+
+        SetAudioPackFormatStr(hwndDlg, "ADM Direct Speakers", sfinfo.format);
+    }
+
+
+    // select default pack format
+        SendDlgItemMessage(hwndDlg, IDC_PACKFORMAT, CB_SETCURSEL, 0, 0);
+
+    // select saved pack format
+    if (wanted_format < 0)
+    {
+        // select first choice for default
+        SendDlgItemMessage(hwndDlg, IDC_PACKFORMAT, CB_SETCURSEL, 0, 0);
+
+    } else {
+
+        int num_b = SendDlgItemMessage(hwndDlg, IDC_PACKFORMAT, CB_GETCOUNT, 0, 0);
+
+        for (int i=0; i<num_b; i++)
+        {
+            int sel_format = SendDlgItemMessage(hwndDlg, IDC_PACKFORMAT, CB_GETITEMDATA, i, 0);
+
+            // if wanted format and itemdata match -> set selected!
+            if (sel_format == ((wanted_format & SF_FORMAT_TYPEMASK) | (wanted_format & SF_FORMAT_SUBMASK) | (wanted_format & SF_FORMAT_ENDMASK)) )
+                SendDlgItemMessage(hwndDlg, IDC_PACKFORMAT, CB_SETCURSEL, i, 0);
+        }
+    }
+
+}
+
+/* update byte order dropdown */
+static void updateByteOrder(HWND hwndDlg, int wanted_format)
+{
+
+    /* First delete all entries */
+    SendDlgItemMessage(hwndDlg, IDC_BYTEORDER, CB_RESETCONTENT, 0, 0);
+
+    SF_INFO 		sfinfo ;
+
+    memset (&sfinfo, 0, sizeof (sfinfo)) ;
+    sfinfo.channels = 1 ;
+
+    int s_id = SendDlgItemMessage(hwndDlg, IDC_ENCODING, CB_GETCURSEL, 0, 0);
+    int format = SendDlgItemMessage(hwndDlg, IDC_ENCODING, CB_GETITEMDATA, s_id, 0);
+
+    /* sanity check... */
+    sfinfo.format = format;
+
+    if (!ptr_sf_format_check (&sfinfo))
+    {
+        printf("Something might have gone wrong... Format not available: %06x \n", format);
+    }
+
+
     /* Default file endian-ness. */
     sfinfo.format = format | SF_ENDIAN_FILE;
     if (ptr_sf_format_check (&sfinfo))
     {
         //printf ("Default Byteorder available \n");
-        
+
         SetByteorderStr(hwndDlg, "Default Byte Order", sfinfo.format);
     }
-    
+
     /* Force little endian-ness. */
     sfinfo.format = format | SF_ENDIAN_LITTLE;
     if (ptr_sf_format_check (&sfinfo))
     {
         //printf ("Little Endian available \n");
-        
+
         SetByteorderStr(hwndDlg, "Little-Endian (Intel Byte Order)", sfinfo.format);
     }
-    
+
     /* Force big endian-ness. */
     sfinfo.format = format | SF_ENDIAN_BIG;
     if (ptr_sf_format_check (&sfinfo))
     {
         //printf ("Big Endian available \n");
-        
+
         SetByteorderStr(hwndDlg, "Big-Endian (PowerPC Byte Order)", sfinfo.format);
     }
-    
+
     /* select default endianess */
     // SendDlgItemMessage(hwndDlg, IDC_BYTEORDER, CB_SETCURSEL, 0, 0);
-    
+
     /* select saved byteorder */
     if (wanted_format < 0)
     {
         // select first choice for default
         SendDlgItemMessage(hwndDlg, IDC_BYTEORDER, CB_SETCURSEL, 0, 0);
-        
+
     } else {
-        
+
         int num_b = SendDlgItemMessage(hwndDlg, IDC_BYTEORDER, CB_GETCOUNT, 0, 0);
-        
+
         for (int i=0; i<num_b; i++)
         {
             int sel_format = SendDlgItemMessage(hwndDlg, IDC_BYTEORDER, CB_GETITEMDATA, i, 0);
-            
+
             // if wanted format and itemdata match -> set selected!
             if (sel_format == ((wanted_format & SF_FORMAT_TYPEMASK) | (wanted_format & SF_FORMAT_SUBMASK) | (wanted_format & SF_FORMAT_ENDMASK)) )
                 SendDlgItemMessage(hwndDlg, IDC_BYTEORDER, CB_SETCURSEL, i, 0);
         }
     }
-    
+
 }
 
 /* Fill Encoding Dropdown Box */
 static void updateSubFormats(HWND hwndDlg, int wanted_format)
 {
-    
+
     /* First delete all entries*/
     SendDlgItemMessage(hwndDlg, IDC_ENCODING, CB_RESETCONTENT, 0, 0);
     SendDlgItemMessage(hwndDlg, IDC_BYTEORDER, CB_RESETCONTENT, 0, 0);
-    
+
     SF_FORMAT_INFO	info ;
     SF_INFO 		sfinfo ;
-    
+
     memset (&sfinfo, 0, sizeof (sfinfo)) ;
     sfinfo.channels = 1 ;
-    
+
     int subtype_count, format;
-    
+
     ptr_sf_command (NULL, SFC_GET_FORMAT_SUBTYPE_COUNT, &subtype_count, sizeof (int)) ;
-    
-    
+
+
     // get current selection of format combobox
     int id = SendDlgItemMessage(hwndDlg, IDC_FORMAT, CB_GETCURSEL, 0, 0);
     int majorformat = SendDlgItemMessage(hwndDlg, IDC_FORMAT, CB_GETITEMDATA, id, 0);
-    
-    
+
+
     info.format = majorformat;
     ptr_sf_command (NULL, SFC_GET_FORMAT_MAJOR, &info, sizeof (info)) ;
-    
+
     // printf ("Got %i subformats\n", subtype_count);
-    
+
     majorformat = info.format;
-    
+
     // printf ("Getting subformats of %s\n", info.name);
-    
+
     for (int s = 0 ; s < subtype_count ; s++)
     {
         info.format = s ;
         ptr_sf_command (NULL, SFC_GET_FORMAT_SUBTYPE, &info, sizeof (info)) ;
-        
-        
+
+
         // printf ("Subformats: %s\n", info.name);
-        
+
         format = (majorformat & SF_FORMAT_TYPEMASK) | info.format ;
-        
+
         sfinfo.format = format ;
-        
+
         // check if the subformat is suitable for this major format
         if (ptr_sf_format_check (&sfinfo))
         {
             // printf ("Found subformat: %s\n", info.name);
             char buf[100];
             wsprintf(buf,"%s", info.name);
-            
+
             SetEncodingStr(hwndDlg, buf, sfinfo.format);
         }
-        
+
     }
-    
-    
+
+
     /* select saved subformat and update byteorder */
     if (wanted_format < 0)
     {
@@ -554,18 +691,18 @@ static void updateSubFormats(HWND hwndDlg, int wanted_format)
         SendDlgItemMessage(hwndDlg, IDC_ENCODING, CB_SETCURSEL, 0, 0);
     } else {
         int num_s = SendDlgItemMessage(hwndDlg, IDC_ENCODING, CB_GETCOUNT, 0, 0);
-        
+
         for (int i=0; i<num_s; i++)
         {
             int sel_format = SendDlgItemMessage(hwndDlg, IDC_ENCODING, CB_GETITEMDATA, i, 0);
-            
+
             // if wanted format and itemdata match -> set selected!
             if (sel_format == ((wanted_format & SF_FORMAT_TYPEMASK) | (wanted_format & SF_FORMAT_SUBMASK)) )
                 SendDlgItemMessage(hwndDlg, IDC_ENCODING, CB_SETCURSEL, i, 0);
         }
     }
-    
-    
+
+
     updateByteOrder(hwndDlg, wanted_format);
 }
 
@@ -575,80 +712,80 @@ WDL_DLGRET wavecfgDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
   switch (uMsg)
   {
-          
+
     // this is called when the dialog is initialized
     case WM_INITDIALOG:
       {
-          
-          
+
+
           /* Get the saved parameters */
           void *cfgdata=((void **)lParam)[0];
           int configLen = (int) (INT_PTR) ((void **) lParam)[1];
-          
+
           int format = 0x020002;
-          
+
           float vbrq = 0.5f;
-          
+
           if (configLen < 32 || *((int *)cfgdata) != SINK_FOURCC)
               configLen=LoadDefaultConfig(&cfgdata,"libsndfile sink defaults");
-          
+
           // parameters have been sent by reaper -> parse them and set gui accordingly
           if (configLen >= 32 && *((int *)cfgdata) == SINK_FOURCC)
           {
               format=REAPER_MAKELEINT(((int *)(((unsigned char *)cfgdata)+4))[0]);
               vbrq=((float *)(( (unsigned char *)cfgdata)+4))[1];
-              
+
               // printf("Got parameters: format: 0x%08x, vbrq: %f\n", format, vbrq);
           }
-          
+
           /* Set Range for slider and value for slider and vbr text*/
           SendDlgItemMessage(hwndDlg, IDC_VBR_SLIDER, TBM_SETRANGE, false, MAKELONG(0, 100));
           SendDlgItemMessage(hwndDlg, IDC_VBR_SLIDER, TBM_SETPOS, true, (int)(vbrq*100.f));
-          
+
           char q_text[5];
           sprintf(q_text, "%.2f", vbrq);
           SetDlgItemText(hwndDlg, IDC_VBR_VAL, q_text);
-          
-          
+
+
           /* fill the format combobox */
           SF_FORMAT_INFO	info ;
-          
+
           int major_count;
-          
+
           ptr_sf_command (NULL, SFC_GET_FORMAT_MAJOR_COUNT, &major_count, sizeof (int)) ;
-          
-          
+
+
           for (int m = 0 ; m < major_count ; m++)
           {
               info.format = m ;
               ptr_sf_command (NULL, SFC_GET_FORMAT_MAJOR, &info, sizeof (info)) ;
-              
+
               char buf[100];
               wsprintf(buf,".%s  ( %s )", info.extension, info.name);
-              
+
               SetFormatStr(hwndDlg, buf, info.format);
           }
-          
-          
-          
+
+
+
           /* select saved parameter and update subformats */
           int num_m = SendDlgItemMessage(hwndDlg, IDC_FORMAT, CB_GETCOUNT, 0, 0);
-          
+
           for (int i=0; i<num_m; i++)
           {
               int sel_format = SendDlgItemMessage(hwndDlg, IDC_FORMAT, CB_GETITEMDATA, i, 0);
-              
+
               // if wanted format and itemdata match -> set selected!
               if (sel_format == (format & SF_FORMAT_TYPEMASK))
                   SendDlgItemMessage(hwndDlg, IDC_FORMAT, CB_SETCURSEL, i, 0);
           }
-          
+
           updateSubFormats(hwndDlg, format); // this will also update byte order
-          
-          
+
+
           return 0;
       }
-          
+
     // this gets called in case something changed
     case WM_COMMAND:
           {
@@ -656,73 +793,73 @@ WDL_DLGRET wavecfgDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
               {
                   int id = SendDlgItemMessage(hwndDlg, IDC_FORMAT, CB_GETCURSEL, 0, 0);
                   int sel_format = SendDlgItemMessage(hwndDlg, IDC_FORMAT, CB_GETITEMDATA, id, 0);
-                  
+
                   updateSubFormats(hwndDlg, -1);
-                      
+
               }
               else if (LOWORD(wParam) == IDC_ENCODING && HIWORD(wParam) == CBN_SELCHANGE)
               {
                   int id = SendDlgItemMessage(hwndDlg, IDC_ENCODING, CB_GETCURSEL, 0, 0);
                   int sel_format = SendDlgItemMessage(hwndDlg, IDC_ENCODING, CB_GETITEMDATA, id, 0);
-                  
+
                   updateByteOrder(hwndDlg, -1);
               }
-              
+
               break;
           }
-          
+
       // this gets called when slider is moved..
       case WM_HSCROLL:
       {
-          
+
           int pos = SendDlgItemMessage(hwndDlg, IDC_VBR_SLIDER, TBM_GETPOS, 0, 0);
-          
+
           float val = (float)pos/100.f;
           char q_text[5];
           // wsprintf(q_text, "%.2f", (float)pos/100.f);
-          
+
           sprintf(q_text, "%.2f", val);
-          
+
           SetDlgItemText(hwndDlg, IDC_VBR_VAL, q_text);
-          
+
           // printf("Slider moved, pos: %.2f!!\n", val);
-          
-          
+
+
           break;
       }
-      
+
     // this gets called to retrieve the settings!
     case WM_USER+1024:
       {
           if (wParam) *((int *)wParam)=32;
           if (lParam)
           {
-              
+
               // get the format selection
               int id = SendDlgItemMessage(hwndDlg, IDC_BYTEORDER, CB_GETCURSEL, 0, 0);
               int format = SendDlgItemMessage(hwndDlg, IDC_BYTEORDER, CB_GETITEMDATA, id, 0);
-              
+
               // get the vbr quality
               int pos = SendDlgItemMessage(hwndDlg, IDC_VBR_SLIDER, TBM_GETPOS, 0, 0);
-              
-              
+
+
               ((int *)lParam)[0] = SINK_FOURCC;
               ((int *)(((unsigned char *)lParam)+4))[0]=REAPER_MAKELEINT(format);
               ((float *)(((unsigned char *)lParam)+4))[1]=(float)pos/100.f;
-              
+
           }
-          
+
           return 0;
       }
     case WM_DESTROY:
       {
-          
-          
-          
-          
+
+
+
+
          return 0;
       }
-      
+
   }
   return 0;
 }
@@ -730,15 +867,15 @@ WDL_DLGRET wavecfgDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 static HWND ShowConfig(const void *cfg, int cfg_l, HWND parent)
 {
-  
+
     if (cfg_l >= 4 && *((int *)cfg) == SINK_FOURCC)
     {
         const void *x[2]={cfg,(void *)cfg_l};
         return CreateDialogParam(g_hInst,MAKEINTRESOURCE(IDD_LIBSNDFILESINK_CFG),parent,wavecfgDlgProc,(LPARAM)x);
     }
-   
+
     return 0;
-   
+
 }
 
 static PCM_sink *CreateSink(const char *filename, void *cfg, int cfg_l, int nch, int srate, bool buildpeaks)
@@ -769,4 +906,3 @@ pcmsink_register_ext_t mySinkRegStruct={{GetFmt,GetExtension,ShowConfig,CreateSi
 #include "swell/swell-menugen.h"
 #include "res.rc_mac_menu"
 #endif
-

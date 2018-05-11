@@ -34,9 +34,11 @@
 #define IDC_NAME                        1037
 #define IDC_INFO                        1038
 #define IDC_LAME_LINK                   1446
+#define IDC_PACKFORMAT                  1021
+#define IDC_PACKFORMAT_TEXT             1022
 
 // Next default values for new objects
-// 
+//
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        102

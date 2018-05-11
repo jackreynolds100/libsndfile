@@ -98,7 +98,7 @@ bw64_open (SF_PRIVATE *psf)
     psf->container_data = wpriv ;
     /*wpriv->wavex_ambisonic = SF_AMBISONIC_NONE ;*/
 
-printf("here!bw64_open_bw64_1\n");
+printf("bw64_open_bw64_1\n");
     /* All BW64 files are little endian. */
     psf->endian = SF_ENDIAN_LITTLE ;
 
@@ -113,7 +113,7 @@ printf("here!bw64_open_bw64_1\n");
         psf->get_chunk_data = bw64_get_chunk_data ;
     } ;
 
-printf("here!bw64_open_bw64_2\n");
+printf("bw64_open_bw64_2\n");
 
     if ((psf->sf.format & SF_FORMAT_TYPEMASK) != SF_FORMAT_BW64)
         return    SFE_BAD_OPEN_FORMAT ;
@@ -132,7 +132,7 @@ printf("here!bw64_open_bw64_2\n");
         psf->write_header = bw64_write_header ;
         psf->set_chunk = bw64_set_chunk ;
     } ;
-printf("here!bw64_open_bw64_3\n");
+printf("bw64_open_bw64_3\n");
 
     psf->container_close = bw64_close ;
     psf->command = bw64_command ;
@@ -168,14 +168,14 @@ printf("here!bw64_open_bw64_3\n");
             return SFE_UNIMPLEMENTED ;
     } ;
 
-printf("here!bw64_open_bw64_4\n");
+printf("bw64_open_bw64_4\n");
 
   //  if (psf->file.mode == SFM_READ)
   //  {
   //      SF_CHNA_INFO_FIXED *b ;
   //      int i, j;
 
-printf("here!bw64_open_bw64_5\n");
+printf("bw64_open_bw64_5\n");
 
   //      b = psf->chna_fixed ;
 
@@ -205,7 +205,7 @@ printf("here!bw64_open_bw64_5\n");
     //}
     // This is just printing out chna contents for debugging
 
-printf("here!bw64_open_bw64_6\n");
+printf("bw64_open_bw64_6\n");
 
     {
         SF_AXML_INFO_16K *b ;

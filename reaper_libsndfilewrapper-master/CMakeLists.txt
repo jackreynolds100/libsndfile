@@ -85,7 +85,7 @@ include_directories (BEFORE ${LIBSNDFILE_INCLUDE_DIR})
 
 IF(APPLE)
   # set the output directory to REAPER Plugin dir
-  SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY "~/Library/Application Support/REAPER/UserPlugins")
+  SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY “.”)	#~/Library/Application Support/REAPER/UserPlugins")
 ENDIF(APPLE)
 
 ######################################
