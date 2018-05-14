@@ -50,7 +50,7 @@
 #define ds64_MARKER	 MAKE_MARKER ('d', 's', '6', '4')
 #define JUNK_MARKER	 MAKE_MARKER ('J', 'U', 'N', 'K')
 #define FFFF_MARKER	 MAKE_MARKER (0xff, 0xff, 0xff, 0xff)
-#define fmt_MARKER	  MAKE_MARKER ('f', 'm', 't', ' ')
+#define fmt_MARKER	 MAKE_MARKER ('f', 'm', 't', ' ')
 #define fact_MARKER	 MAKE_MARKER ('f', 'a', 'c', 't')
 #define data_MARKER	 MAKE_MARKER ('d', 'a', 't', 'a')
 #define axml_MARKER	 MAKE_MARKER ('a', 'x', 'm', 'l')
@@ -366,19 +366,19 @@ bw64_read_header (SF_PRIVATE *psf, int *blockalign, int *framesperblock)
 				{	psf_log_printf (psf, "*** Unknown chunk marker (%X) at position %D with length %u. Exiting parser.\n", marker, psf_ftell (psf) - 8, chunk_size) ;
 					done = SF_TRUE ;
 					break ;
-				} ;
+					} ;
 
 				if (isprint ((marker >> 24) & 0xFF) && isprint ((marker >> 16) & 0xFF)
 					&& isprint ((marker >> 8) & 0xFF) && isprint (marker & 0xFF))
 				{	psf_log_printf (psf, "*** %M : %d (unknown marker)\n", marker, chunk_size) ;
 					psf_binheader_readf (psf, "j", chunk_size) ;
 					break ;
-				} ;
+					} ;
 				if (psf_ftell (psf) & 0x03)
 				{	psf_log_printf (psf, "  Unknown chunk marker at position 0x%x. Resynching.\n", chunk_size - 4) ;
 					psf_binheader_readf (psf, "j", -3) ;
 					break ;
-				} ;
+					} ;
 				psf_log_printf (psf, "*** Unknown chunk marker (0x%X) at position 0x%X. Exiting parser.\n", marker, psf_ftell (psf) - 4) ;
 				done = SF_TRUE ;
 				break ;
@@ -390,12 +390,12 @@ bw64_read_header (SF_PRIVATE *psf, int *blockalign, int *framesperblock)
 		if (marker != data_MARKER && chunk_size >= psf->filelength)
 		{	psf_log_printf (psf, "*** Chunk size %u > file length %D. Exiting parser.\n", chunk_size, psf->filelength) ;
 			break ;
-		} ;
+			} ;
 
 		if (psf_ftell (psf) >= psf->filelength - SIGNED_SIZEOF (marker))
 		{	psf_log_printf (psf, "End\n") ;
 			break ;
-		} ;
+			} ;
 	} ;
 
 	if (psf->dataoffset <= 0)
@@ -420,7 +420,7 @@ bw64_read_header (SF_PRIVATE *psf, int *blockalign, int *framesperblock)
 		psf_binheader_readf (psf, "4", &marker) ;
 		if (marker == wvpk_MARKER || marker == OggS_MARKER)
 			return SFE_WAV_WVPK_DATA ;
-	} ;
+		} ;
 
 	/* Seek to start of DATA section. */
 	psf_fseek (psf, psf->dataoffset, SEEK_SET) ;
@@ -430,12 +430,12 @@ bw64_read_header (SF_PRIVATE *psf, int *blockalign, int *framesperblock)
 		psf->sf.frames = (psf->filelength - psf->dataoffset) / psf->blockwidth ;
 	else
 		psf->sf.frames = psf->datalength / psf->blockwidth ;
-	} ;
+		} ;
 
 	if (frame_count != psf->sf.frames)
 		psf_log_printf (psf, "*** Calculated frame count %d does not match value from 'ds64' chunk of %d.\n", psf->sf.frames, frame_count) ;
 
-	 switch (format)
+	switch (format)
 	{
 
 		case WAVE_FORMAT_PCM :
@@ -568,13 +568,13 @@ bw64_write_header (SF_PRIVATE *psf, int calc_length)
 
 	if (wpriv->bw64_downgrade && psf->filelength < RIFF_DOWNGRADE_BYTES)
 	{   psf_binheader_writef (psf, "etm8m", BHWm (RIFF_MARKER), BHW8 ((psf->filelength < 8) ? 8 : psf->filelength - 8), BHWm (WAVE_MARKER)) ;
-		psf_binheader_writef (psf, "m4z", BHWm (JUNK_MARKER), BHW4 (24), BHWz (24)) ;
+		psf_binheader_writef (psf, "m4z", BHWm (JUNK_MARKER), BHW4 (28), BHWz (28)) ;
 		add_fact_chunk = 1 ;
 	}
 	else
 	{   psf_binheader_writef (psf, "em4m", BHWm (BW64_MARKER), BHW4 (0xffffffff), BHWm (WAVE_MARKER)) ;
 		/* Currently no table. */
-		psf_binheader_writef (psf, "m48884", BHWm (ds64_MARKER), BHW4 (28), BHW8 (psf->filelength - 8), BHW8 (psf->datalength), BHW8 (psf->sf.frames), BHW4 (0)) ;
+		psf_binheader_writef (psf, "m48884", BHWm (ds64_MARKER), BHW4 (28), BHW8 (psf->filelength - 8), BHW8 (psf->datalength), BHW8 (0), BHW4 (0)) ;
 	} ;
 
 	/* WAVE and 'fmt ' markers. */

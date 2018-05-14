@@ -256,6 +256,36 @@
 	<TD>Enable auto downgrade from RF64 to WAV</TD>
 </TR>
 
+<TR>
+	<TD><A HREF="#SFC_BW64_AUTO_DOWNGRADE">SFC_BW64_AUTO_DOWNGRADE</A></TD>
+	<TD>Enable auto downgrade from BW64 to WAV</TD>
+</TR>
+
+<TR>
+	<TD><A HREF="#SFC_GET_AXML_INFO">SFC_GET_AXML_INFO</A></TD>
+	<TD>Retrieve the AXML Chunk info</TD>
+</TR>
+
+<TR>
+	<TD><A HREF="#SFC_GET_AXML_SIZE">SFC_GET_AXML_SIZE</A></TD>
+	<TD>Retrieve the AXML Chunk size</TD>
+</TR>
+ 
+<TR>
+	<TD><A HREF="#SFC_SET_AXML_INFO">SFC_SET_AXML_INFO</A></TD>
+	<TD>Set the AXML Chunk info</TD>
+</TR>
+
+<TR>
+	<TD><A HREF="#SFC_GET_CHNA_INFO">SFC_GET_CHNA_INFO</A></TD>
+	<TD>Retrieve the CHNA Chunk info</TD>
+</TR>
+
+<TR>
+	<TD><A HREF="#SFC_SET_CHNA_INFO">SFC_SET_CHNA_INFO</A></TD>
+	<TD>Set the CHNA Chunk info</TD>
+</TR>
+ 
 <!--
 <TR>
 	<TD><A HREF="#add-dither">add dither</A></TD>
@@ -1859,6 +1889,185 @@ Example:
 <!-- ========================================================================= -->
 
 
+<A NAME="SFC_BW64_AUTO_DOWNGRADE"></A>
+<H2><BR><B>SFC_BW64_AUTO_DOWNGRADE</B></H2>
+<P>
+Enable auto downgrade from BW64 to WAV.
+</P>
+<P>
+The ITU-R recomendation is that when writing BW64 files and the resulting file is
+less than 4Gig in size, it should be downgraded to a WAV file (WAV files have a
+maximum size of 4Gig).
+libsndfile doesn't follow the ITU-R recommendations exactly, mainly because the
+test suite needs to be able test reading/writing RF64 files without having to
+generate files larger than 4 gigabytes.
+</P>
+<p>
+Note: This command should be issued before the first bit of audio data has been
+written to the file.
+Calling this command after audio data has been written will return the current
+value of this setting, but will not allow it to be changed.
+</p>
+<p>
+Parameters:
+</p>
+<PRE>
+         sndfile  : A valid SNDFILE* pointer
+         cmd      : SFC_BW64_AUTO_DOWNGRADE
+         data     : NULL
+         datasize : SF_TRUE or SF_FALSE
+</PRE>
+<P>
+Example:
+</P>
+<PRE>
+         /* Enable auto downgrade on file close. */
+         sf_command (sndfile, SFC_BW64_AUTO_DOWNGRADE, NULL, SF_TRUE) ;
+</PRE>
+<DL>
+<DT>Return value:</DT>
+	<dd>Returns SF_TRUE if SFC_BW64_AUTO_DOWNGRADE is set and SF_FALSE
+	otherwise.
+</DL>
+
+<!-- ========================================================================= -->
+
+<A NAME="SFC_SET_AXML_INFO"></A>
+<H2><BR><B>SFC_SET_AXML_INFO</B></H2>
+<P>
+Set the AXML Chunk for BW64 files.
+</P>
+<p>
+Parameters:
+</p>
+<PRE>
+        sndfile  : A valid SNDFILE* pointer
+        cmd      : SFC_SET_AXML_INFO
+        data     : a pointer to a dynamic char array, that has already been
+ allocated enough space for the XML data it is carrying
+        datasize : size of the dynamic char array
+</PRE>
+
+<DL>
+<DT>Return value: </DT>
+	<DD>SF_TRUE if setting the AXML chunk was successful and SF_FALSE
+	otherwise.
+
+</DL>
+
+<!-- ========================================================================= -->
+<A NAME="SFC_GET_AXML_INFO"></A>
+<H2><BR><B>SFC_GET_AXML_INFO</B></H2>
+<P>
+Retrieve the AXML Chunk from BW64 files.
+</P>
+<p>
+Parameters:
+</p>
+<PRE>
+        sndfile  : A valid SNDFILE* pointer
+        cmd      : SFC_GET_AXML_INFO
+        data     : a pointer to a dynamic char array
+        datasize : size of the dynamic char array
+</PRE>
+
+<DL>
+<DT>Return value: </DT>
+	<DD>SF_TRUE if the file contained an AXML chunk or SF_FALSE
+	otherwise.
+</DL>
+
+<!-- ========================================================================= -->
+<A NAME="SFC_GET_AXML_SIZE"></A>
+<H2><BR><B>SFC_GET_AXML_SIZE</B></H2>
+<P>
+Retrieve the size of the AXML Chunk from BW64 files.
+</P>
+<p>
+Parameters:
+</p>
+<PRE>
+        sndfile  : A valid SNDFILE* pointer
+        cmd      : SFC_GET_AXML_SIZE
+        data     : a pointer to a size_t variable for the result
+        datasize : not used
+</PRE>
+
+<DL>
+<DT>Return value: </DT>
+	<DD>SF_TRUE if the file contained an AXML chunk or SF_FALSE
+	otherwise.
+</DL>
+ 
+<!-- ========================================================================= -->
+
+<A NAME="SFC_SET_CHNA_INFO"></A>
+<H2><BR><B>SFC_SET_CHNA_INFO</B></H2>
+<P>
+Set the CHNA Chunk for BW64 files.
+</P>
+<p>
+Parameters:
+</p>
+<PRE>
+        sndfile  : A valid SNDFILE* pointer
+        cmd      : SFC_SET_CHNA_INFO
+        data     : a pointer to the SF_CHNA_INFO struct
+        datasize : sizeof(SF_CHNA_INFO)
+</PRE>
+
+<DL>
+<DT>Return value: </DT>
+	<DD>SF_TRUE if setting the CHNA chunk was successful and SF_FALSE
+	otherwise.
+
+</DL>
+
+<!-- ========================================================================= -->
+
+<A NAME="SFC_GET_CHNA_INFO"></A>
+<H2><BR><B>SFC_GET_CHNA_INFO</B></H2>
+<P>
+Retrieve the CHNA Chunk from BW64 files.
+</P>
+<p>
+Parameters:
+</p>
+<PRE>
+        sndfile  : A valid SNDFILE* pointer
+        cmd      : SFC_GET_CHNA_INFO
+        data     : a pointer to an SF_CHNA_INFO struct
+        datasize : sizeof (SF_CHNA_INFO)
+</PRE>
+<P>
+The SF_CHNA_INFO struct is defined in &lt;sndfile.h&gt; as:
+</P>
+<PRE>
+typedef struct
+{
+    uint16_t trackIndex ;
+    char     UID [12] ;
+    char     trackRef [14] ;
+    char     packRef [11] ;
+    char     pad ;
+} SF_CHNA_TRACK ;
+
+typedef struct
+{	
+    uint16_t      numTracks ;
+    uint16_t      numUIDs ;
+    SF_CHNA_TRACK audioID [1024] ;
+} SF_CHNA_INFO ;  
+</PRE>
+
+<DL>
+<DT>Return value: </DT>
+	<DD>SF_TRUE if the file contained a CHNA chunk or SF_FALSE
+	otherwise.
+</DL>
+
+<!-- ========================================================================= -->
+ 
 <HR>
 <P>
 	The libsndfile home page is here :

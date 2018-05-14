@@ -1239,22 +1239,22 @@ sf_command	(SNDFILE *sndfile, int command, void *data, int datasize)
 
 			if (format != SF_FORMAT_WAV && format != SF_FORMAT_BW64)
 				return SF_FALSE ;
-		};
+			};
 
-		if ((psf->file.mode != SFM_WRITE) && (psf->file.mode != SFM_RDWR))
-			return SF_FALSE ;
+			if ((psf->file.mode != SFM_WRITE) && (psf->file.mode != SFM_RDWR))
+				return SF_FALSE ;
 
-		if (psf->axml_var == NULL && psf->have_written)
-		{	psf->error = SFE_CMD_HAS_DATA ;
-			return SF_FALSE ;
-		} ;
+			if (psf->axml_var == NULL && psf->have_written)
+			{	psf->error = SFE_CMD_HAS_DATA ;
+				return SF_FALSE ;
+			} ;
 
-		if (NOT (axml_var_set (psf, data, datasize)))
-			return SF_FALSE ;
+			if (NOT (axml_var_set (psf, data, datasize)))
+				return SF_FALSE ;
 
-		if (psf->write_header)
-			psf->write_header (psf, SF_TRUE) ;
-		return SF_TRUE ;
+			if (psf->write_header)
+				psf->write_header (psf, SF_TRUE) ;
+			return SF_TRUE ;
 
 
 		case SFC_GET_AXML_INFO :
@@ -1263,6 +1263,14 @@ sf_command	(SNDFILE *sndfile, int command, void *data, int datasize)
 				return SF_FALSE ;
 				} ;
 			return axml_var_get (psf, data, datasize) ;
+
+		case SFC_GET_AXML_SIZE :
+			if (data == NULL)
+			{	psf->error = SFE_BAD_COMMAND_PARAM ;
+				return SF_FALSE ;
+				} ;
+			memcpy(data, &(psf->axml_len), sizeof(size_t));
+			return SF_TRUE ;
 
 		/* Only WAV and BW64 support the CHNA (channel allocation) chunk. */
 		case SFC_SET_CHNA_INFO :

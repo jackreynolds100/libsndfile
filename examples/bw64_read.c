@@ -44,6 +44,7 @@ main (int argc, char *argv [])
 	int i, k, count, max = 0, total = 0 ;
 	char *axml_data ;
 	SF_CHNA_INFO chna_info ;
+	size_t axml_size;
 
 
 	if (argc < 2)
@@ -73,7 +74,10 @@ main (int argc, char *argv [])
 		} ;
 
  	/* Read axml chunk */
-	axml_data = (char *)malloc(sizeof(char) * AXML_SIZE);
+	sf_command(file, SFC_GET_AXML_SIZE, (void *)&axml_size, 0);
+	printf("axml size: %lu\n", axml_size);
+
+	axml_data = (char *)malloc(sizeof(char) * axml_size);
 	sf_command(file, SFC_GET_AXML_INFO, (void *)axml_data, AXML_SIZE);
 	printf("axml data:\n");
 	printf("%s\n", axml_data);

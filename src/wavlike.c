@@ -1387,6 +1387,7 @@ wavlike_read_axml_chunk (SF_PRIVATE *psf, uint32_t chunksize)
 		} ;
 
   	b = psf->axml_var ;
+	psf->axml_len = (size_t)chunksize ;
 
 	bytes += psf_binheader_readf (psf, "b", b, chunksize) ;
 

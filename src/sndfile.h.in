@@ -223,6 +223,7 @@ enum
 	/* axml chunk support */
 	SFC_GET_AXML_INFO				= 0x1601,
 	SFC_SET_AXML_INFO				= 0x1602,
+	SFC_GET_AXML_SIZE				= 0x1603,
 
 	/* Following commands for testing only. */
 	SFC_TEST_IEEE_FLOAT_REPLACE		= 0x6001,

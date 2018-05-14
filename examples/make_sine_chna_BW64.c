@@ -42,7 +42,7 @@
 #endif
 
 #define		SAMPLE_RATE			48000
-#define		SAMPLE_COUNT		(SAMPLE_RATE * 1)  /* a second of audio */
+#define		SAMPLE_COUNT		(SAMPLE_RATE * 1)  /* A second of audio. Change 1 to 15000 if you want a >4gb file. */
 #define		AMPLITUDE			(1.0 * 0x7F000000)
 #define		LEFT_FREQ			(344.0 / SAMPLE_RATE)
 #define		RIGHT_FREQ			(466.0 / SAMPLE_RATE)
@@ -63,9 +63,6 @@ main (void)
 	char *axml_info;
 	int axml_len;
 
-	/* Enable auto downgrade on file close. */
-
-	printf("main: ready to open\n");
 
 	if (! (buffer = malloc (2 * SAMPLE_COUNT * sizeof (int))))
 	{	printf ("Error : Malloc failed.\n") ;
@@ -86,6 +83,8 @@ main (void)
 		free (buffer) ;
 		return 1 ;
 		} ;
+
+	/* Enable auto downgrade on file close. */
 
 	sf_command(file, SFC_BW64_AUTO_DOWNGRADE, NULL, SF_TRUE) ;
 
@@ -137,6 +136,12 @@ GenerateAxml(char **axml_info)
 <ebuCoreMain xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns=\"urn:ebu:metadata-schema:ebuCore\" xml:lang=\"en\">\n\
     <format>\n\
       <audioFormatExtended>\n\
+        <audioProgramme audioProgrammeID=\"APR_1001\" audioProgrammeName=\"Test\">\n\
+          <audioContentIDRef>ACO_1001/audioContentIDRef>\n\
+        </audioProgramme>\n\
+        <audioContent audioContentID=\"ACO_1001\" audioContentName=\"Test\">\n\
+          <audioObjectIDRef>AO_1001</audioObjectIDRef>\n\
+        </audioContent>\n\
         <audioObject audioObjectID=\"AO_1001\" audioObjectName=\"Main\">\n\
           <audioPackFormatIDRef>AP_00010002</audioPackFormatIDRef>\n\
           <audioTrackUIDRef>ATU_00000001</audioTrackUIDRef>\n\

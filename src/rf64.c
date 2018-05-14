@@ -665,7 +665,7 @@ rf64_write_header (SF_PRIVATE *psf, int calc_length)
 
 	if (wpriv->rf64_downgrade && psf->filelength < RIFF_DOWNGRADE_BYTES)
 	{	psf_binheader_writef (psf, "etm8m", BHWm (RIFF_MARKER), BHW8 ((psf->filelength < 8) ? 8 : psf->filelength - 8), BHWm (WAVE_MARKER)) ;
-		psf_binheader_writef (psf, "m4z", BHWm (JUNK_MARKER), BHW4 (24), BHWz (24)) ;
+		psf_binheader_writef (psf, "m4z", BHWm (JUNK_MARKER), BHW4 (28), BHWz (28)) ;
 		add_fact_chunk = 1 ;
 		}
 	else
