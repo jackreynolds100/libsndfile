@@ -42,7 +42,7 @@
 #endif
 
 #define		SAMPLE_RATE			48000
-#define		SAMPLE_COUNT		(SAMPLE_RATE * 1)  /* A second of audio. Change 1 to 15000 if you want a >4gb file. */
+#define		SAMPLE_COUNT		(SAMPLE_RATE * 15000)  /* A second of audio. Change 1 to 15000 if you want a >4gb file. */
 #define		AMPLITUDE			(1.0 * 0x7F000000)
 #define		LEFT_FREQ			(344.0 / SAMPLE_RATE)
 #define		RIGHT_FREQ			(466.0 / SAMPLE_RATE)
@@ -77,7 +77,7 @@ main (void)
 	sfinfo.channels		= 2 ;
 	sfinfo.format		= (SF_FORMAT_BW64 | SF_FORMAT_PCM_24) ;
 
-	if (! (file = sf_open ("BW64_sine.wav", SFM_WRITE, &sfinfo)))
+	if (! (file = sf_open ("BW64_big_sine.wav", SFM_WRITE, &sfinfo)))
 	{
 		printf ("Error : Not able to open output file.\n") ;
 		free (buffer) ;
@@ -132,12 +132,13 @@ GenerateAxml(char **axml_info)
 
     /* Some ADM XML to represent stereo channels */
 	sprintf(str, "\
-<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n \
+<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\
 <ebuCoreMain xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns=\"urn:ebu:metadata-schema:ebuCore\" xml:lang=\"en\">\n\
+  <coreMetadata>\n\
     <format>\n\
       <audioFormatExtended>\n\
         <audioProgramme audioProgrammeID=\"APR_1001\" audioProgrammeName=\"Test\">\n\
-          <audioContentIDRef>ACO_1001/audioContentIDRef>\n\
+          <audioContentIDRef>ACO_1001</audioContentIDRef>\n\
         </audioProgramme>\n\
         <audioContent audioContentID=\"ACO_1001\" audioContentName=\"Test\">\n\
           <audioObjectIDRef>AO_1001</audioObjectIDRef>\n\
